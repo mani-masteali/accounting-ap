@@ -23,21 +23,24 @@ class User:
             self.firstName=firstName
         else:
             raise ValueError(Console().print('[bold red]first name must only consist of English letters.'))
+        return
     # بررسی معتبر بودن نام خانوادگی و تعریف آن برای کاربر
     def get_last_name(self,lastName):
         if len(re.findall('[a-z]',lastName))+len(re.findall('[A-Z]',lastName)) == len(lastName):
             self.lastName=lastName
         else:
             raise ValueError(Console().print('[bold red]last name must only consist of English letters.'))
+        return
     #بررسی معتبر بودن کد ملی و تعریف آن برای کاربر
     def get_code_meli(self,nationalId):
         if len(nationalId)==10 :
             if len(re.findall('[0-9]',nationalId))==len(nationalId):
                 self.nationalId=nationalId
             else:
-                ValueError(Console().print('[bold red]National ID only has numbers in it.'))
+                raise ValueError(Console().print('[bold red]National ID only has numbers in it.'))
         else:
             raise ValueError(Console().print('[bold red]National ID must have ten numbers.'))
+        return 
     #بررسی معتبر بودن شماره تلفن و تعریف آن برای کاربر
     def get_phone_number(self,phoneNumber):
         if len(phoneNumber)==11 and len(re.findall('[0-9]',phoneNumber))==len(phoneNumber) and  bool(re.search('^09.',phoneNumber))==True:
@@ -47,7 +50,8 @@ class User:
         elif len(re.findall('[0-9]',phoneNumber))!=len(phoneNumber):
             raise ValueError(Console().print('[bold red]phone number must only consist of digits.'))
         elif bool(re.search('^09.',phoneNumber))==False:
-            ValueError(Console().print('[bold red]phone number must begin with 09.'))
+            raise ValueError(Console().print('[bold red]phone number must begin with 09.'))
+        return 
     #گرفتن یوزرنیم از کاربر  که می تواند به هر شکل دلخواه باشد.
     def get_username(self,userName):
         self.userName=userName
@@ -65,6 +69,7 @@ class User:
             raise ValueError(Console().print('[bold red]password must contain at least one digit.'))
         elif len(re.findall('[0-9]',password))<1:
             raise ValueError(Console().print('[bold red]password must contain at least one special character (!#$%&\'()*+,-./:;<=>?@[\\]^_`{|}~).'))
+        return
     #برای تایید رمز عبور  
     def check_repeated_password(self,repeatedPassword):
         if repeatedPassword!=self.password:
@@ -75,12 +80,14 @@ class User:
             self.city=city
         else:
             raise ValueError(Console().print(f'[bold red]Invalid city. Please choose the city from this list: [cyan]{self.savedcities}.'))
+        return 
     # بررسی معتبر بودن ایمیل و گرفتن از کاربر
     def get_email(self,email):
         if bool(re.findall(r'[A-Za-z0-9]+@(gmail|yahoo)\.com',email))==True:
             self.email=email
         else:
-            Console().print('invalid email',style=red)
+            raise ValueError(Console().print(f'[bold red]Invalid email'))
+        return
     def get_birth_date(self,birthDate):
         if bool(re.findall('[1-2][0-9][0-9][0-9]/[0-1][0-9]/[0-3][0-9]',birthDate))==True:
             year=birthDate[0:4]
@@ -91,13 +98,14 @@ class User:
                 if 1<=int(day)<=max_days[int(month)]:
                     self.birthDate=birthDate
                 else:
-                    Console().print(f'invalid day. this month has only {max_days[month]}',style=red)
+                    raise ValueError(Console().print(f'[bold red] invalid day. this month has only {max_days[month]}'))
             elif int(year)<1920 or int(year)>2005:
-                Console().print('birth year must be between 1920 and 2005',style=red)
+                raise ValueError(Console().print(f'[bold red]birth year must be between 1920 and 2005'))
             elif int(month)<1 or int(month)>12:
-                Console().print('month must be between 1 and 12',style=red)
+                raise ValueError(Console().print(f'[bold red]month must be between 1 and 12'))
         else:
-            Console().print('invalid birth date format',style=red)
+            raise ValueError(Console().print(f'[bold red] invalid birth date format'))
+        return
     #گرفتن پاسخ سوال امنیتی که از کاربر پرسیده می شود
     def get_security_questions_answer(self,answer):
         self.securityQAnswer=answer
