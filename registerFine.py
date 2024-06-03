@@ -1,22 +1,28 @@
 import csv
 from datetime import datetime
+from category import Category
 
 
 class RegisterFine:
-    def __init__(self, incomeFile="income.csv", costFile="cost.csv"):
+    def __init__(self, incomeFile="income.csv", costFile="cost.csv", incomeCategoryFile="incomeCategories.txt", costCategoryFile="costCategories.txt"):
         self.incomeFile = incomeFile
         self.costFile = costFile
-        # Categories should be imported from categories.csv.
-        self.categories = ['Salary', 'Investment', 'Freelance', 'Gift']
+        self.categoryManager = Category(incomeCategoryFile, costCategoryFile)
+        self.incomeCategories = self.categoryManager.incomeCategories
+        self.costCategories = self.categoryManager.costCategories
         self.types = ['Cash', 'Check', 'Cryptocurrency']
 
     def registerIncome(self):
+        if not self.incomeCategories:
+            print("No income categories available. Please add categories first.")
+            self.categoryManager.add_category("income")
+            self.incomeCategories = self.categoryManager.incomeCategories
+
         amount = self.get_valid_input("Enter amount: ", self.is_amount_valid)
         date = self.get_valid_input(
             "Enter date in this format (mm/dd/yyyy): ", self.is_date_valid)
-        # Category should be chosen from categories.csv.
         category = self.get_valid_input(
-            "Enter category: ", self.is_category_valid)
+            "Enter income category: ", lambda x: self.is_category_valid(x, self.incomeCategories))
         description = self.get_valid_input(
             "Enter description (optional, 100 characters at most): ", self.is_description_valid, optional=True)
         type_ = self.get_valid_input(
@@ -27,12 +33,16 @@ class RegisterFine:
         print("Income saved successfully.")
 
     def registerCost(self):
+        if not self.costCategories:
+            print("No cost categories available. Please add categories first.")
+            self.category_manager.add_category("cost")
+            self.costCategories = self.category_manager.costCategories
+
         amount = self.get_valid_input("Enter amount: ", self.is_amount_valid)
         date = self.get_valid_input(
             "Enter date in this format (mm/dd/yyyy): ", self.is_date_valid)
-        # Category should be chosen from categories.csv.
         category = self.get_valid_input(
-            "Enter category: ", self.is_category_valid)
+            "Enter cost category: ", lambda x: self.is_category_valid(x, self.costCategories))
         description = self.get_valid_input(
             "Enter description (optional, 100 characters at most): ", self.is_description_valid, optional=True)
         type_ = self.get_valid_input(
@@ -70,19 +80,18 @@ class RegisterFine:
             print("Date must be in the format mm/dd/yyyy.")
             return False
 
-    def is_category_valid(self, category):
-        # It must be checked that the category is in categories.csv.
-        if category in self.categories:
+    def is_category_valid(self, category, categories):
+        if category in categories:
             return True
         else:
-            print("Invalid category. Choose from: " + ", ".join(self.categories))
+            print(f"Invalid category. Choose from: {', '.join(categories)}")
             return False
 
     def is_type_valid(self, type_):
         if type_ in self.types:
             return True
         else:
-            print("Invalid type. Choose from: " + ", ".join(self.types))
+            print(f"Invalid type. Choose from: {', '.join(self.types)}")
             return False
 
     def is_description_valid(self, description):
@@ -98,11 +107,5 @@ class RegisterFine:
             writer.writerow(record)
 
 
-# Example usage:
-financial_record = RegisterFine()
-
-# Registering an income
-financial_record.registerIncome()
-
-# Registering a cost
-financial_record.registerCost()
+if __name__ == "__main__":
+    financial_record = RegisterFine()
