@@ -2,7 +2,9 @@ import re
 import sys
 import msvcrt
 import time
-
+from rich.console import Console
+from rich.text import Text
+from colors import blue, red, gray, cyan 
 
 class Category:
     def __init__(self, incomeFile="incomeCategories.txt", costFile="costCategories.txt"):
@@ -35,19 +37,15 @@ class Category:
                         print(f"Income category '{category}' already exists.")
                     else:
                         self.incomeCategories.append(category)
-                        self.save_categories(
-                            self.incomeFile, self.incomeCategories)
-                        print(f"Income category '{
-                              category}' added successfully.")
+                        self.save_categories(self.incomeFile, self.incomeCategories)
+                        print(f"Income category '{category}' added successfully.")
                 elif categoryType == "cost":
                     if category in self.costCategories:
                         print(f"Cost category '{category}' already exists.")
                     else:
                         self.costCategories.append(category)
-                        self.save_categories(
-                            self.costFile, self.costCategories)
-                        print(f"Cost category '{
-                              category}' added successfully.")
+                        self.save_categories(self.costFile, self.costCategories)
+                        print(f"Cost category '{category}' added successfully.")
                 break
 
     def is_category_valid(self, category):
@@ -62,87 +60,75 @@ class Category:
             return False
         return True
 
-    def show_categories(self,errorMessage=None):
-        try:
-            print("Income Categories:")
+    def display_category_menu(self, errorMessage=None):
+        while True:
+            Console().clear()
+            
+            Console().print(Text("Options:", style=cyan))
+            Console().print(Text("Press arrow keys and enter button or press the number of your choice (range 1-4). Press 'q' to exit.", style=gray))
+            if errorMessage:
+                Console().print(Text(f"Error: {errorMessage}", style=red))
+            for i, option in enumerate(self.categoriesMenuOptions):
+                if i == self.categoriesMenuSelectedOption:
+                    Console().print(Text(f"-> {i + 1}- {option}", style=blue))
+                else:
+                    Console().print(Text(f"   {i + 1}- {option}", style=cyan))
+
+            # Display the income and cost categories
+            Console().print(Text("\nIncome Categories:", style=cyan))
             for cat in self.incomeCategories:
-                print(f"- {cat}")
+                Console().print(Text(f"- {cat}", style=cyan))
 
-            print("\nCost Categories:")
+            Console().print(Text("\nCost Categories:", style=cyan))
             for cat in self.costCategories:
-                print(f"- {cat}")
+                Console().print(Text(f"- {cat}", style=cyan))
 
-            key = msvcrt.getch()
-            if key == b'\xe0':  # Arrow keys are preceded by '\xe0'. if this conditon not checked, we will get an invalid input error when using arrow keys
-                keyCode = ord(msvcrt.getch())
-                if keyCode == 72:  # Up arrow key
-                    self.categoriesMenuSelectedOption = (
-                        self.categoriesMenuSelectedOption - 1) % len(self.categoriesMenuSelectedOption)
-                elif keyCode == 80:  # Down arrow key
-                    self.categoriesMenuSelectedOption = (
-                        self.categoriesMenuSelectedOption + 1) % len(self.categoriesMenuSelectedOption)
-            elif key == b'\r':  # Enter key
-                time.sleep(1)
-                return self.options[self.selectedOption]
-            elif key == b'q':  # 'q' key
-                self.exit()
-            elif key.isdigit():  # If a digit is pressed
-                optionNum = int(key)
-                if 1 <= optionNum <= len(self.categoriesMenuOptions):
-                    return self.categoriesMenuOptions[optionNum - 1]
+            try:
+                key = msvcrt.getch()
+                if key == b'\xe0':  # Arrow keys are preceded by '\xe0'
+                    keyCode = ord(msvcrt.getch())
+                    if keyCode == 72:  # Up arrow key
+                        self.categoriesMenuSelectedOption = (self.categoriesMenuSelectedOption - 1) % len(self.categoriesMenuOptions)
+                    elif keyCode == 80:  # Down arrow key
+                        self.categoriesMenuSelectedOption = (self.categoriesMenuSelectedOption + 1) % len(self.categoriesMenuOptions)
+                elif key == b'\r':  # Enter key
+                    selectedOption = self.categoriesMenuOptions[self.categoriesMenuSelectedOption]
+                    if selectedOption == "Add income category":
+                        self.add_category("income")
+                    elif selectedOption == "Add cost category":
+                        self.add_category("cost")
+                    elif selectedOption == "Main menu":
+                        print("Returning to the main menu...")
+                        break  # Replace this with the actual main menu call if needed
+                    elif selectedOption == "Exit":
+                        sys.exit()
+                elif key == b'q':  # 'q' key
+                    sys.exit()
+                elif key.isdigit():  # If a digit is pressed
+                    optionNum = int(key)
+                    if 1 <= optionNum <= len(self.categoriesMenuOptions):
+                        selectedOption = self.categoriesMenuOptions[optionNum - 1]
+                        if selectedOption == "Add income category":
+                            self.add_category("income")
+                        elif selectedOption == "Add cost category":
+                            self.add_category("cost")
+                        elif selectedOption == "Main menu":
+                            print("Returning to the main menu...")
+                            break  # i must show main menu from menu.py then
+                        elif selectedOption == "Exit":
+                            sys.exit()
+                    else:
+                        raise ValueError("Number out of range")
                 else:
-                    raise ValueError("Number out of range")
-            else:
-                raise ValueError("Invalid input")
-        except ValueError as e:
-            self.show_categories(str(e))
-            # Pause to show the error message and then get input again if our input value was not valid.
-            time.sleep(3)
-        except Exception as e:
-            print(f"An unexpected error occurred: {e}")
-            return None
-
-        self.display_menu()
-
-        choice = self.get_user_input()
-        if choice == b'1':
-            self.add_category("income")
-        elif choice == b'2':
-            self.add_category("cost")
-        elif choice == b'3':
-            self.show_main_menu()
-        elif choice == b'4':
-            sys.exit()
-        else:
-            print("Invalid choice. Please try again.")
-
-    def display_menu(self):
-        while True:
-
-            print("\nOptions:")
-            print("1- Add Income Category")
-            print("2- Add Cost Category")
-            print("3- Main menu")
-            print("4- Exit")
-            print("Choose an option: ", end='', flush=True)
-
-    def get_user_input(self):
-        while True:
-            key = msvcrt.getch()
-            if key in [b'1', b'2', b'3', b'4']:
-                return key
-            elif key == b'\xe0':  # Arrow keys are preceded by '\xe0'. if this conditon not checked, we will get an invalid input error when using arrow keys
-                next_key = msvcrt.getch()
-                if next_key in [b'H', b'P']:  # Up, Down
-                    print(next_key)
-                else:
-                    print("Invalid key. Please try again.")
-
-    def show_main_menu(self):
-        print("Returning to the main menu...")
-        # This part must be completed
-
+                    raise ValueError("Invalid input")
+            except ValueError as e:
+                self.display_category_menu(str(e))
+                # Pause to show the error message and then get input again if our input value was not valid.
+                time.sleep(3)
+            except Exception as e:
+                print(f"An unexpected error occurred: {e}")
+                return None
 
 if __name__ == "__main__":
     category = Category()
-    category.show_categories()
+    category.display_category_menu()
