@@ -35,7 +35,7 @@ class RegisterFine:
     def registerCost(self):
         if not self.costCategories:
             print("No cost categories available. Please add categories first.")
-            self.category_manager.add_category("cost")
+            self.categoryManager.add_category("cost")
             self.costCategories = self.category_manager.costCategories
 
         amount = self.get_valid_input("Enter amount: ", self.is_amount_valid)
