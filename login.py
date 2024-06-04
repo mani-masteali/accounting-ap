@@ -1,4 +1,3 @@
-from signup import User
 from rich.console import Console
 from rich.text import Text
 import time

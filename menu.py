@@ -4,8 +4,10 @@ from rich.text import Text
 from colors import blue, red, green, yellow, purple, cyan, magenta, white, black, gray
 import sys
 import msvcrt
-
-
+from registerFine import RegisterFine
+from category import Category
+from search import Search
+from report import Report
 class MainMenu():
     def __init__(self):
         self.options = [
@@ -34,14 +36,12 @@ class MainMenu():
     def handle_input(self):
         try:
             key = msvcrt.getch()
-            if key == b'\xe0':  # Arrow keys are preceded by '\xe0'. if this conditon not checked, we will get an invalid input error when using arrow keys
+            if key == b'\xe0':  # Arrow keys are preceded by '\xe0'. if this condition not checked, we will get an invalid input error when using arrow keys
                 keyCode = ord(msvcrt.getch())
                 if keyCode == 72:  # Up arrow key
-                    self.selectedOption = (
-                        self.selectedOption - 1) % len(self.options)
+                    self.selectedOption = (self.selectedOption - 1) % len(self.options)
                 elif keyCode == 80:  # Down arrow key
-                    self.selectedOption = (
-                        self.selectedOption + 1) % len(self.options)
+                    self.selectedOption = (self.selectedOption + 1) % len(self.options)
             elif key == b'\r':  # Enter key
                 time.sleep(1)
                 return self.options[self.selectedOption]
@@ -60,29 +60,41 @@ class MainMenu():
             # Pause to show the error message and then get input again if our input value was not valid.
             time.sleep(3)
         except Exception as e:
-            Console().print(
-                Text(f"An unexpected error occurred: {e}", style=red))
+            Console().print(Text(f"An unexpected error occurred: {e}", style=red))
             return None
 
     def exit(self):
         endTime = time.time()
-        Console().print(Text("Total time:", style=yellow), Text(
-            f"{endTime - startTime:.2f}", style=purple), Text("seconds", style=yellow))
+        Console().print(Text("Total time:", style=yellow), Text(f"{endTime - startTime:.2f}", style=purple), Text("seconds", style=yellow))
         Console().print(Text("Exiting ...", style=magenta))
         time.sleep(1)
         sys.exit()
 
-
 if __name__ == "__main__":
     startTime = time.time()  # Start menu and app usage time recording
     menu = MainMenu()
+    register = RegisterFine()
+    category = Category()
+
     while True:
         menu.display_menu()
         selectedOptionName = menu.handle_input()
-        if selectedOptionName:
-            Console().print(Text(f"Selected option: {
-                selectedOptionName}", style=purple))
-            break
-    endTime = time.time()
-    Console().print(Text("Total time:", style=yellow), Text(
-        f"{endTime - startTime:.2f}", style=purple), Text("seconds", style=yellow))
+        if selectedOptionName == menu.options[0]:
+            register.registerIncome()
+        elif selectedOptionName == menu.options[1]:
+            register.registerCost()
+        elif selectedOptionName == menu.options[2]:
+            category.display_category_menu()
+        elif selectedOptionName == menu.options[3]:
+            print("Search")
+            time.sleep(2)
+            Search.show_search_filters()
+        elif selectedOptionName == menu.options[4]:
+            print("Reporting")
+            time.sleep(2)
+            Report.show_search_filters()
+        elif selectedOptionName == menu.options[5]:
+            print("Settings")
+            time.sleep(2)  # by Mani
+        elif selectedOptionName == menu.options[6]:
+            menu.exit()
