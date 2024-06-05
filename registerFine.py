@@ -7,9 +7,9 @@ class RegisterFine:
     def __init__(self, incomeFile="income.csv", costFile="cost.csv", incomeCategoryFile="incomeCategories.txt", costCategoryFile="costCategories.txt"):
         self.incomeFile = incomeFile
         self.costFile = costFile
-        self.categoryManager = Category(incomeCategoryFile, costCategoryFile)
-        self.incomeCategories = self.categoryManager.incomeCategories
-        self.costCategories = self.categoryManager.costCategories
+        self.category = Category(incomeCategoryFile, costCategoryFile)
+        self.incomeCategories = self.category.incomeCategories
+        self.costCategories = self.category.costCategories
         self.types = ['Cash', 'Check', 'Cryptocurrency']
 
     def registerIncome(self):

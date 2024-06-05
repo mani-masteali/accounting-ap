@@ -6,6 +6,7 @@ import sys
 import msvcrt
 from registerFine import RegisterFine
 from category import Category
+from exit import exit 
 
 class MainMenu():
     def __init__(self):
@@ -45,7 +46,7 @@ class MainMenu():
                 time.sleep(1)
                 return self.options[self.selectedOption]
             elif key == b'q':  # 'q' key
-                self.exit()
+                exit()
             elif key.isdigit():  # If a digit is pressed
                 optionNum = int(key)
                 if 1 <= optionNum <= len(self.options):
@@ -62,13 +63,6 @@ class MainMenu():
             Console().print(Text(f"An unexpected error occurred: {e}", style=red))
             return None
 
-    def exit(self):
-        endTime = time.time()
-        Console().print(Text("Total time:", style=yellow), Text(f"{endTime - startTime:.2f}", style=purple), Text("seconds", style=yellow))
-        Console().print(Text("Exiting ...", style=magenta))
-        time.sleep(1)
-        sys.exit()
-
 if __name__ == "__main__":
     startTime = time.time()  # Start menu and app usage time recording
     menu = MainMenu()
@@ -83,15 +77,19 @@ if __name__ == "__main__":
         elif selectedOptionName == menu.options[1]:
             register.registerCost()
         elif selectedOptionName == menu.options[2]:
-            category.display_category_menu()
+            result = category.display_category_menu()
+            if result == "Main menu":
+                register = RegisterFine()
+                category = Category()
+                continue
         elif selectedOptionName == menu.options[3]:
             print("Search")
-            time.sleep(2)  # by Mani
+            time.sleep(2)  # Placeholder for search functionality
         elif selectedOptionName == menu.options[4]:
             print("Reporting")
-            time.sleep(2)  # by Mani
+            time.sleep(2)  # Placeholder for reporting functionality
         elif selectedOptionName == menu.options[5]:
             print("Settings")
-            time.sleep(2)  # by Mani
+            time.sleep(2)  # Placeholder for settings functionality
         elif selectedOptionName == menu.options[6]:
-            menu.exit()
+            exit()

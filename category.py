@@ -1,10 +1,10 @@
 import re
-import sys
 import msvcrt
 import time
 from rich.console import Console
 from rich.text import Text
-from colors import blue, red, gray, cyan 
+from colors import blue, red, gray, cyan
+from exit import exit 
 
 class Category:
     def __init__(self, incomeFile="incomeCategories.txt", costFile="costCategories.txt"):
@@ -63,7 +63,6 @@ class Category:
     def display_category_menu(self, errorMessage=None):
         while True:
             Console().clear()
-            
             Console().print(Text("Options:", style=cyan))
             Console().print(Text("Press arrow keys and enter button or press the number of your choice (range 1-4). Press 'q' to exit.", style=gray))
             if errorMessage:
@@ -98,12 +97,11 @@ class Category:
                     elif selectedOption == "Add cost category":
                         self.add_category("cost")
                     elif selectedOption == "Main menu":
-                        print("Returning to the main menu...")
-                        break  # Replace this with the actual main menu call if needed
+                        return "Main menu"
                     elif selectedOption == "Exit":
-                        sys.exit()
+                        exit()
                 elif key == b'q':  # 'q' key
-                    sys.exit()
+                    exit()
                 elif key.isdigit():  # If a digit is pressed
                     optionNum = int(key)
                     if 1 <= optionNum <= len(self.categoriesMenuOptions):
@@ -113,10 +111,9 @@ class Category:
                         elif selectedOption == "Add cost category":
                             self.add_category("cost")
                         elif selectedOption == "Main menu":
-                            print("Returning to the main menu...")
-                            break  # i must show main menu from menu.py then
+                            return "Main menu"
                         elif selectedOption == "Exit":
-                            sys.exit()
+                            exit()
                     else:
                         raise ValueError("Number out of range")
                 else:
