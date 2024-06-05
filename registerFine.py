@@ -15,8 +15,8 @@ class RegisterFine:
     def registerIncome(self):
         if not self.incomeCategories:
             print("No income categories available. Please add categories first.")
-            self.categoryManager.add_category("income")
-            self.incomeCategories = self.categoryManager.incomeCategories
+            self.category.add_category("income")
+            self.incomeCategories = self.category.incomeCategories
 
         amount = self.get_valid_input("Enter amount: ", self.is_amount_valid)
         date = self.get_valid_input(
@@ -35,7 +35,7 @@ class RegisterFine:
     def registerCost(self):
         if not self.costCategories:
             print("No cost categories available. Please add categories first.")
-            self.categoryManager.add_category("cost")
+            self.category.add_category("cost")
             self.costCategories = self.category_manager.costCategories
 
         amount = self.get_valid_input("Enter amount: ", self.is_amount_valid)
