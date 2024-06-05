@@ -75,7 +75,6 @@ if __name__ == "__main__":
     menu = MainMenu()
     register = RegisterFine()
     category = Category()
-
     while True:
         menu.display_menu()
         selectedOptionName = menu.handle_input()
@@ -88,7 +87,6 @@ if __name__ == "__main__":
         elif selectedOptionName == menu.options[3]:
             print("Search")
             time.sleep(2)
-            Search.show_search_filters()
         elif selectedOptionName == menu.options[4]:
             print("Reporting")
             time.sleep(2)
