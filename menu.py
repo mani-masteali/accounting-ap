@@ -75,7 +75,7 @@ if __name__ == "__main__":
         if selectedOptionName == menu.options[0]:
             register.registerIncome()
         elif selectedOptionName == menu.options[1]:
-            register.registerCost()
+            register.registerExpense()
         elif selectedOptionName == menu.options[2]:
             result = category.display_category_menu()
             if result == "Main menu":

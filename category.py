@@ -7,13 +7,13 @@ from colors import blue, red, gray, cyan
 from exit import exit 
 
 class Category:
-    def __init__(self, incomeFile="incomeCategories.txt", costFile="costCategories.txt"):
+    def __init__(self, incomeFile="incomeCategories.txt", expenseFile="expenseCategories.txt"):
         self.incomeFile = incomeFile
-        self.costFile = costFile
+        self.expenseFile = expenseFile
         self.incomeCategories = self.load_categories(self.incomeFile)
-        self.costCategories = self.load_categories(self.costFile)
+        self.expenseCategories = self.load_categories(self.expenseFile)
         self.categoriesMenuOptions = [
-            "Add income category", "Add cost category", "Main menu", "Exit"]
+            "Add income category", "Add expense category", "Main menu", "Exit"]
         self.categoriesMenuSelectedOption = 0
 
     def load_categories(self, file):
@@ -39,13 +39,13 @@ class Category:
                         self.incomeCategories.append(category)
                         self.save_categories(self.incomeFile, self.incomeCategories)
                         print(f"Income category '{category}' added successfully.")
-                elif categoryType == "cost":
-                    if category in self.costCategories:
-                        print(f"Cost category '{category}' already exists.")
+                elif categoryType == "expense":
+                    if category in self.expenseCategories:
+                        print(f"Expense category '{category}' already exists.")
                     else:
-                        self.costCategories.append(category)
-                        self.save_categories(self.costFile, self.costCategories)
-                        print(f"Cost category '{category}' added successfully.")
+                        self.expenseCategories.append(category)
+                        self.save_categories(self.expenseFile, self.expenseCategories)
+                        print(f"Expense category '{category}' added successfully.")
                 break
 
     def is_category_valid(self, category):
@@ -73,13 +73,13 @@ class Category:
                 else:
                     Console().print(Text(f"   {i + 1}- {option}", style=cyan))
 
-            # Display the income and cost categories
+            # Display the income and expense categories
             Console().print(Text("\nIncome Categories:", style=cyan))
             for cat in self.incomeCategories:
                 Console().print(Text(f"- {cat}", style=cyan))
 
-            Console().print(Text("\nCost Categories:", style=cyan))
-            for cat in self.costCategories:
+            Console().print(Text("\nExpense Categories:", style=cyan))
+            for cat in self.expenseCategories:
                 Console().print(Text(f"- {cat}", style=cyan))
 
             try:
@@ -94,8 +94,8 @@ class Category:
                     selectedOption = self.categoriesMenuOptions[self.categoriesMenuSelectedOption]
                     if selectedOption == "Add income category":
                         self.add_category("income")
-                    elif selectedOption == "Add cost category":
-                        self.add_category("cost")
+                    elif selectedOption == "Add expense category":
+                        self.add_category("expense")
                     elif selectedOption == "Main menu":
                         return "Main menu"
                     elif selectedOption == "Exit":
@@ -108,8 +108,8 @@ class Category:
                         selectedOption = self.categoriesMenuOptions[optionNum - 1]
                         if selectedOption == "Add income category":
                             self.add_category("income")
-                        elif selectedOption == "Add cost category":
-                            self.add_category("cost")
+                        elif selectedOption == "Add expense category":
+                            self.add_category("expense")
                         elif selectedOption == "Main menu":
                             return "Main menu"
                         elif selectedOption == "Exit":

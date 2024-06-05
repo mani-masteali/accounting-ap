@@ -4,12 +4,12 @@ from category import Category
 
 
 class RegisterFine:
-    def __init__(self, incomeFile="income.csv", costFile="cost.csv", incomeCategoryFile="incomeCategories.txt", costCategoryFile="costCategories.txt"):
+    def __init__(self, incomeFile="income.csv", File="Expense.csv", incomeCategoryFile="incomeCategories.txt", expenseCategoryFile="expenseCategories.txt"):
         self.incomeFile = incomeFile
-        self.costFile = costFile
-        self.category = Category(incomeCategoryFile, costCategoryFile)
+        self.expenseFile = expenseFile
+        self.category = Category(incomeCategoryFile, expenseCategoryFile)
         self.incomeCategories = self.category.incomeCategories
-        self.costCategories = self.category.costCategories
+        self.expenseCategories = self.category.expenseCategories
         self.types = ['Cash', 'Check', 'Cryptocurrency']
 
     def registerIncome(self):
@@ -32,25 +32,25 @@ class RegisterFine:
         self.save_record(self.incomeFile, record)
         print("Income saved successfully.")
 
-    def registerCost(self):
-        if not self.costCategories:
-            print("No cost categories available. Please add categories first.")
-            self.category.add_category("cost")
-            self.costCategories = self.category_manager.costCategories
+    def registerExpense(self):
+        if not self.expenceCategories:
+            print("No expense categories available. Please add categories first.")
+            self.category.add_category("expense")
+            self.expenseCategories = self.category_manager.expenceCategories
 
         amount = self.get_valid_input("Enter amount: ", self.is_amount_valid)
         date = self.get_valid_input(
             "Enter date in this format (mm/dd/yyyy): ", self.is_date_valid)
         category = self.get_valid_input(
-            "Enter cost category: ", lambda x: self.is_category_valid(x, self.costCategories))
+            "Enter expence category: ", lambda x: self.is_category_valid(x, self.expenceCategories))
         description = self.get_valid_input(
             "Enter description (optional, 100 characters at most): ", self.is_description_valid, optional=True)
         type_ = self.get_valid_input(
             f"Enter type ({', '.join(self.types)}): ", self.is_type_valid)
 
         record = [amount, date, category, description, type_]
-        self.save_record(self.costFile, record)
-        print("Cost saved successfully.")
+        self.save_record(self.expenceFile, record)
+        print("Expense saved successfully.")
 
     def get_valid_input(self, prompt, validation_func, optional=False):
         while True:
