@@ -23,7 +23,7 @@ class MainMenu():
 
     def display_menu(self, errorMessage=None):
         Console().clear()
-        Console().print(Text("Main Menu:", style=cyan))
+        Console().print(Text("Main Menu:", style=blue))
         Console().print(Text("Press arrow keys and enter button or press the number of your choice (range 1-7). Press 'q' to exit.", style=gray))
         if errorMessage:
             Console().print(Text(f"Error: {errorMessage}", style=red))

@@ -3,7 +3,7 @@ import msvcrt
 import time
 from rich.console import Console
 from rich.text import Text
-from colors import blue, red, gray, cyan
+from colors import blue, red, gray, cyan,yellow,green
 from exit import exit 
 
 class Category:
@@ -30,33 +30,35 @@ class Category:
 
     def add_category(self, categoryType):
         while True:
-            category = input(f"Enter new {categoryType} category name: ").capitalize()
+            category = Console().input(Text(f"Enter new {categoryType} category name: ",style=cyan)).capitalize()
             if self.is_category_valid(category):
                 if categoryType == "income":
                     if category in self.incomeCategories:
-                        print(f"Income category '{category}' already exists.")
+                        Console().print(Text(f"Income category '{category}' already exists."),style=yellow)
                     else:
                         self.incomeCategories.append(category)
                         self.save_categories(self.incomeFile, self.incomeCategories)
-                        print(f"Income category '{category}' added successfully.")
+                        Console().print(Text(f"Income category '{category}' added successfully.", style=green, no_wrap=True))
                 elif categoryType == "expense":
                     if category in self.expenseCategories:
-                        print(f"Expense category '{category}' already exists.")
+                        Console().print(Text(f"Expense category '{category}' already exists.",style=yellow))
                     else:
                         self.expenseCategories.append(category)
                         self.save_categories(self.expenseFile, self.expenseCategories)
-                        print(f"Expense category '{category}' added successfully.")
+                        Console().print(Text(f"Expense category '{category}' added successfully.", style=green, no_wrap=True))
                 break
 
     def is_category_valid(self, category):
         if not category:
-            print("Category name cannot be empty.")
+            Console.print(Text("Category name cannot be empty.",style=red))
             return False
         if len(category) > 15:
-            print("Category name must be 15 characters or less.")
+            Console.print(Text("Category name must be 15 characters or less.",style=red))
+
             return False
         if not re.match("^[A-Za-z0-9]+$", category):
-            print("Category name must contain only letters and numbers.")
+            Console.print(Text("Category name must contain only letters and numbers.",style=red))
+
             return False
         return True
 
@@ -121,11 +123,7 @@ class Category:
             except ValueError as e:
                 self.display_category_menu(str(e))
                 # Pause to show the error message and then get input again if our input value was not valid.
-                time.sleep(3)
+                time.sleep(2)
             except Exception as e:
-                print(f"An unexpected error occurred: {e}")
+                Console.print(Text(f"An unexpected error occurred: {e}",style=red))
                 return None
-
-if __name__ == "__main__":
-    category = Category()
-    category.display_category_menu()

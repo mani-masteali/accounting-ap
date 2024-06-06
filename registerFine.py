@@ -5,6 +5,7 @@ from rich.console import Console
 from rich.text import Text
 import msvcrt
 import time
+from colors import blue, red, green, yellow, purple, cyan, magenta, white, black, gray
 
 
 class RegisterFine:
@@ -15,20 +16,20 @@ class RegisterFine:
         self.incomeCategories = self.category.incomeCategories
         self.expenseCategories = self.category.expenseCategories
         self.types = ['1- Cash', '2- Check', '3- Cryptocurrency']
-        self.yes_no_options = ['Yes', 'No']
+        self.yesNoOptions = ['Yes', 'No']
         self.selectedTypeIndex = 0
         self.selectedCategoryIndex = 0
         self.selectedYesNoIndex = 0
 
     def registerIncome(self):
         if not self.incomeCategories:
-            print("No income categories available. Please add categories first.")
+            Console().print(Text("No income categories available. Please add categories first.", style=yellow))
             self.category.add_category("income")
             self.incomeCategories = self.category.incomeCategories
 
         amount = self.get_valid_input("Enter amount: ", self.is_amount_valid)
         date = self.get_valid_input(
-            f"Enter date in this format (mm/dd/yyyy) (today is {datetime.now().strftime('%m/%d/%Y')}): ", self.is_date_valid)
+            f"Enter date in this format (mm/dd/yyyy). For example today is {datetime.now().strftime('%m/%d/%Y')}: ", self.is_date_valid)
         category = self.select_category(self.incomeCategories, "income")
         description = self.get_valid_input(
             "Enter description (optional, 100 characters at most): ", self.is_description_valid, optional=True)
@@ -36,17 +37,17 @@ class RegisterFine:
 
         record = [amount, date, category, description, type_]
         self.save_record(self.incomeFile, record)
-        print("Income saved successfully.")
+        Console().print(Text("Income saved successfully.",style=green))
 
     def registerExpense(self):
         if not self.expenseCategories:
-            print("No expense categories available. Please add categories first.")
+            Console().print(Text("No expense categories available. Please add categories first.",style=green))
             self.category.add_category("expense")
             self.expenseCategories = self.category.expenseCategories
 
         amount = self.get_valid_input("Enter amount: ", self.is_amount_valid)
         date = self.get_valid_input(
-            f"Date must be in this format mm/dd/yyyy. For example today is {datetime.now().strftime('%m/%d/%Y')}", self.is_date_valid)
+            f"Date must be in this format mm/dd/yyyy. For example today is {datetime.now().strftime('%m/%d/%Y')}: ", self.is_date_valid)
         category = self.select_category(self.expenseCategories, "expense")
         description = self.get_valid_input(
             "Enter description (optional, 100 characters at most): ", self.is_description_valid, optional=True)
@@ -54,11 +55,11 @@ class RegisterFine:
 
         record = [amount, date, category, description, type_]
         self.save_record(self.expenseFile, record)
-        print("Expense saved successfully.")
+        Console().print(Text("Expense saved successfully.",style=green))
 
     def get_valid_input(self, prompt, validationFunc, optional=False):
         while True:
-            user_input = input(prompt)
+            user_input = Console().input(Text(prompt,style=blue))
             if optional and user_input == '':
                 return ''
             if validationFunc(user_input):
@@ -70,10 +71,10 @@ class RegisterFine:
             if amount > 0:
                 return True
             else:
-                print("Amount must be positive.")
+                Console().print(Text("Amount must be positive.", style=red))
                 return False
         except ValueError:
-            print("Amount must be a number.")
+            Console().print(Text("Amount must be a number.", style=red))
             return False
 
     def is_date_valid(self, date):
@@ -86,7 +87,7 @@ class RegisterFine:
                     return False
             return True
         except ValueError:
-            print(f"Date must be in this format mm/dd/yyyy. For example today is {datetime.now().strftime('%m/%d/%Y')}")
+            Console().print(Text(f"Date must be in this format mm/dd/yyyy. For example today is {datetime.now().strftime('%m/%d/%Y')}",style=red))
             return False
 
     def confirm_future_date(self):
@@ -100,16 +101,17 @@ class RegisterFine:
     def display_yes_no_menu(self, errorMessage=None):
         console = Console()
         console.clear()
-        console.print(Text("The date entered is in the future. Are you sure you want to enter a future date?", style="cyan"))
+        console.print(Text(
+            "The date entered is in the future. Are you sure you want to enter a future date?", style=yellow))
         console.print(
-            Text("Use arrow keys to navigate and Enter to select. Input the number of your choice.", style="gray"))
+            Text("Use arrow keys to navigate and Enter to select. Input the number of your choice.", style=gray))
         if errorMessage:
-            console.print(Text(f"Error: {errorMessage}", style="red"))
+            console.print(Text(f"Error: {errorMessage}", style=red))
         for i, option in enumerate(self.yesNoOptions):
             if i == self.selectedYesNoIndex:
-                console.print(Text(f"-> {i+1}. {option}", style="blue"))
+                console.print(Text(f"-> {i+1}. {option}", style=blue))
             else:
-                console.print(Text(f"   {i+1}. {option}", style="cyan"))
+                console.print(Text(f"   {i+1}. {option}", style=cyan))
 
     def handle_yes_no_input(self):
         while True:
@@ -130,15 +132,15 @@ class RegisterFine:
                     self.selectedYesNoIndex = optionNum - 1
                     self.display_yes_no_menu()  # Display menu again to update colors
                     time.sleep(1)
-                    return self.yes_no_options[self.selectedYesNoIndex]
+                    return self.yesNoOptions[self.selectedYesNoIndex]
             elif key == b'\r':  # Enter key
-                return self.yes_no_options[self.selectedYesNoIndex]
+                return self.yesNoOptions[self.selectedYesNoIndex]
 
     def is_description_valid(self, description):
         if len(description) <= 100:
             return True
         else:
-            print("Description must be 100 characters or less.")
+            Console().print(Text("Description must be 100 characters or less.",style=red))
             return False
 
     def save_record(self, file, record):
@@ -149,16 +151,16 @@ class RegisterFine:
     def display_type_menu(self, errorMessage=None):
         console = Console()
         console.clear()
-        console.print(Text("Select Type:", style="cyan"))
+        console.print(Text("Select Type:", style=cyan))
         console.print(
-            Text("Use arrow keys to navigate and Enter to select.", style="gray"))
+            Text("Use arrow keys to navigate and Enter to select.", style=gray))
         if errorMessage:
             console.print(Text(f"Error: {errorMessage}", style="red"))
         for i, type_ in enumerate(self.types):
             if i == self.selectedTypeIndex:
-                console.print(Text(f"-> {type_}", style="blue"))
+                console.print(Text(f"-> {type_}", style=blue))
             else:
-                console.print(Text(f"   {type_}", style="cyan"))
+                console.print(Text(f"   {type_}", style=cyan))
 
     def handle_type_input(self):
         while True:
@@ -189,23 +191,23 @@ class RegisterFine:
             if selectedType:
                 return selectedType
             elif selectedType is None:
-                print("Type selection canceled.")
+                Console().print(Text("Type selection canceled.",style=yellow))
                 return ''
 
     def display_category_menu(self, categories, categoryType, errorMessage=None):
         console = Console()
         console.clear()
         console.print(
-            Text(f"Select {categoryType.capitalize()} Category:", style="cyan"))
+            Text(f"Select {categoryType.capitalize()} Category:", style=cyan))
         console.print(Text(
-            "Use arrow keys to navigate and Enter to select. Input the number of your choice.", style="gray"))
+            "Use arrow keys to navigate and Enter to select. Input the number of your choice.", style=gray))
         if errorMessage:
-            console.print(Text(f"Error: {errorMessage}", style="red"))
+            console.print(Text(f"Error: {errorMessage}", style=red))
         for i, category in enumerate(categories):
             if i == self.selectedCategoryIndex:
-                console.print(Text(f"-> {i+1}. {category}", style="blue"))
+                console.print(Text(f"-> {i+1}. {category}", style=blue))
             else:
-                console.print(Text(f"   {i+1}. {category}", style="cyan"))
+                console.print(Text(f"   {i+1}. {category}", style=cyan))
 
     def handle_category_input(self, categories, categoryType):
         while True:
@@ -240,4 +242,4 @@ class RegisterFine:
             if selectedCategory:
                 return selectedCategory
             elif selectedCategory is None:
-                print(f"{categoryType.capitalize()} category selection canceled.")
+                Console().print(Text(f"{categoryType.capitalize()} category selection canceled.",style=yellow))
