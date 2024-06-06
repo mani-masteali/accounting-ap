@@ -12,7 +12,7 @@ def login_user(userName, passWord):
     return False
 def count_wrong_enters(count):
     if count%3==0:
-        Console.print(Text('try again in one minute!'),style=red)
+        Console().print(Text('try again in one minute!'),style=red)
         time.sleep(60)
     else:
         pass
@@ -26,7 +26,7 @@ def forgot_password(userNameOrEmail,securityQAnswer):
     ]
     if not matching_users.empty:
         user = matching_users.iloc[0]  
-        if user['SecuityQAnswer'] == securityQAnswer:
+        if user['SecurityQAnswer'] == securityQAnswer:
             Console().print(Text(f"Your password is: {user['password']}"), style=green)
         else:
             Console().print(Text("Security question answer is wrong!"), style=red)

@@ -35,7 +35,7 @@ if __name__=='__main__':
                 userX.get_birth_date(input('birth date: (yyyy/mm/dd) '))
                 userX.get_security_questions_answer(input('What is your favorite car brand? '))
                 userX.save_csv()
-                last_option=str(Console().input('[green] type submit to continue'))
+                last_option=str(Console().input('[green] type submit to continue\n'))
                 if last_option=='submit':
                     break
                 else:

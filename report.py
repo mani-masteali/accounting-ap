@@ -21,20 +21,22 @@ class Report:
             income_or_cost_or_both=input('choose if you want to see the report for incomes or costs or both ')
             day=input('please choose the day you want: (yyyy/mm/dd) ')
             if income_or_cost_or_both=='both':
-                income=self.incomeFile[self.incomeFile['date']==day]
-                costs=self.costsFile[self.costsFile['date']==day]
+                income=self.incomeFile[self.incomeFile['date'].str.contains(day)]
+                costs=self.costsFile[self.costsFile['date'].str.contains(day)]
                 print(f'incomes of {day}:')
                 print(income)
                 print(f'costs of {day}:')
                 print(costs)
             elif income_or_cost_or_both=='income':
-                income=self.incomeFile[self.incomeFile['date']==day]
+                income=self.incomeFile[self.incomeFile['date'].str.contains(day)]
                 print(f'incomes of {day}:')
                 print(income)
             elif income_or_cost_or_both=='costs':
-                costs=self.costsFile[self.costsFile['date']==day]
+                costs=self.costsFile[self.costsFile['date'].str.contains(day)]
                 print(f'costs of {day}:')
-                print(costs)                
+                print(costs)
+            else:
+                print('invalid input')
     def report_for_a_month(self):
         if self.choice=='2':
             income_or_cost_or_both=input('choose if you want to see the report for incomes or costs or both ')
@@ -54,6 +56,8 @@ class Report:
                 costs=self.costsFile[self.costsFile['date'].str.contains(month)]
                 print(f'costs of {month}:')
                 print(costs) 
+            else:
+                print('invalid input')
     def report_for_a_year(self):
         if self.choice=='3':
             income_or_cost_or_both=input('choose if you want to see the report for incomes or costs or both ')
@@ -73,6 +77,8 @@ class Report:
                 costs=self.costsFile[self.costsFile['date'].str.contains(year)]
                 print(f'costs of {year}:')
                 print(costs) 
+            else:
+                print('invalid input')
     def report_for_a_value_range(self):
         if self.choice=='4':
             income_or_cost_or_both=input('choose if you want to see the report for incomes or costs or both ')
@@ -93,6 +99,8 @@ class Report:
                 costs=self.costsFile[(self.costsFile['amount']>=min_value)&(self.costsFile['amount']<=max_value)]
                 print(f'costs between {min} and {max}:')
                 print(costs)
+            else:
+                print('invalid error')
     def report_for_a_category(self):
         if self.choice=='5':
             category=input('please enter the category you want a report of: ')

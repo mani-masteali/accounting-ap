@@ -23,39 +23,39 @@ class Search:
             if '4' not in self.filters:
                 filtered_income = self.incomeFile.loc[self.incomeFile['date'].str.contains(day)]
                 filtered_costs = self.costsFile.loc[(self.costsFile['date'].str.contains(day))]
-                self.print_if_none_empty(filtered_income,filtered_costs)
+                return (filtered_income,filtered_costs) if not filtered_income.empty and not filtered_costs.empty else 'no results found!'
             elif self.income_or_cost_val==1:
                 filtered_income = self.incomeFile.loc[(self.incomeFile['date'].str.contains(day))]
-                print(filtered_income if not filtered_income.empty else 'no results found')
+                return filtered_income if not filtered_income.empty else 'no results found'
             elif self.income_or_cost_val==2:
                 filtered_costs = self.costsFile.loc[self.costsFile['date'].str.contains(day)]
-                print(filtered_costs if not filtered_costs.empty else 'no results found')
+                return filtered_costs if not filtered_costs.empty else 'no results found'
     def month_income_or_cost(self):
         if '2' in self.filters:
             month=input('enter the month you want to check: (yyyy/mm) ')
             if '4' not in self.filters:
                 filtered_income = self.incomeFile.loc[self.incomeFile['date'].str.contains(month)]
                 filtered_costs = self.costsFile.loc[self.costsFile['date'].str.contains(month)]
-                self.print_if_none_empty(filtered_income,filtered_costs)
+                return (filtered_income,filtered_costs) if not filtered_income.empty and not filtered_costs.empty else 'no results found!'
             elif self.income_or_cost_val==1:
                 filtered_income = self.incomeFile.loc[self.incomeFile['date'].str.contains(month)]
-                print(filtered_income if not filtered_income.empty else 'no results found')
+                return filtered_income if not filtered_income.empty else 'no results found'
             elif self.income_or_cost_val==2:
                 filtered_costs = self.costsFile.loc[self.costsFile['date'].str.contains(month)]
-                print(filtered_costs if not filtered_costs.empty else 'no results found')
+                return filtered_costs if not filtered_costs.empty else 'no results found'
     def year_income_or_cost(self):
         if '3' in self.filters:
             year=input('enter the year you want to check: (yyyy) ')
             if '4' not in self.filters:
                 filtered_income = self.incomeFile.loc[self.incomeFile['date'].str.contains(year)]
                 filtered_costs = self.costsFile.loc[self.costsFile['date'].str.contains(year)]
-                self.print_if_none_empty(filtered_income,filtered_costs)
+                return (filtered_income,filtered_costs) if not filtered_income.empty and not filtered_costs.empty else 'no results found!'
             elif self.income_or_cost_val==1:
                 filtered_income = self.incomeFile.loc[self.incomeFile['date'].str.contains(year)]
-                print(filtered_income if not filtered_income.empty else 'no results found')
+                return filtered_income if not filtered_income.empty else 'no results found'
             elif self.income_or_cost_val==2:
                 filtered_costs = self.costsFile.loc[self.costsFile['date'].str.contains(year)]
-                print(filtered_costs if not filtered_costs.empty else 'no results found')
+                return filtered_costs if not filtered_costs.empty else 'no results found'
     def income_or_cost(self):
         if '4' in self.filters:
             income_or_cost=input('choose whether you want to see the incomes or costs ')
@@ -72,13 +72,13 @@ class Search:
             if '4' not in self.filters:
                 filtered_income = self.incomeFile.loc[(self.incomeFile['amount']>=min_value) & (self.incomeFile['amount']<=max_value)]
                 filtered_costs = self.costsFile.loc[(self.costsFile['amount']>=min_value) & (self.costsFile['amount']<=max_value)]
-                self.print_if_none_empty(filtered_income,filtered_costs)
+                return (filtered_income,filtered_costs) if not filtered_income.empty and not filtered_costs.empty else 'no results found!'
             elif self.income_or_cost_val==1:
                 filtered_income = self.incomeFile.loc[(self.incomeFile['amount']>=min_value) & (self.incomeFile['amount']<=max_value)]
-                print(filtered_income if not filtered_income.empty else 'no results found')
+                return filtered_income if not filtered_income.empty else 'no results found'
             elif self.income_or_cost_val==2:
                 filtered_costs = self.costsFile.loc[(self.costsFile['amount']>=min_value) & (self.costsFile['amount']<=max_value)]
-                print(filtered_costs if not filtered_costs.empty else 'no results found')
+                return filtered_costs if not filtered_costs.empty else 'no results found'
     def specify(self):
         if '6' in self.filters:
             wanted=input('please enter either the explantion you want or the type of income or outcome or the source of either one of them: (type of request: filter) ')
@@ -86,35 +86,35 @@ class Search:
                     if 'explanation' in wanted:
                         filtered_income = self.incomeFile.loc[self.incomeFile['description'].str.contains(wanted[13:])]
                         filtered_costs = self.costsFile.loc[self.costsFile['description'].str.contains(wanted[13:])]
-                        self.print_if_none_empty(filtered_income,filtered_costs)
+                        return (filtered_income,filtered_costs) if not filtered_income.empty and not filtered_costs.empty else 'no results found!'
                     elif 'type' in wanted:
                         filtered_income = self.incomeFile.loc[self.incomeFile['type_'].str.contains(wanted[6:])]
                         filtered_costs = self.costsFile.loc[self.costsFile['type_'].str.contains(wanted[6:])]
-                        self.print_if_none_empty(filtered_income,filtered_costs)
+                        return (filtered_income,filtered_costs) if not filtered_income.empty and not filtered_costs.empty else 'no results found!'
                     elif 'source' in wanted:
                         filtered_income = self.incomeFile.loc[self.incomeFile['category'].str.contains(wanted[8:])]
                         filtered_costs = self.costsFile.loc[self.costsFile['category'].str.contains(wanted[8:])]
-                        self.print_if_none_empty(filtered_income,filtered_costs)
+                        return (filtered_income,filtered_costs) if not filtered_income.empty and not filtered_costs.empty else 'no results found!'
             elif self.income_or_cost_val==1:
                 if 'explanation' in wanted:
                     filtered_income = self.incomeFile.loc[self.incomeFile['description'].str.contains(wanted[13:])]
-                    print(filtered_income if not filtered_income.empty else 'no results found')
+                    return filtered_income if not filtered_income.empty else 'no results found'
                 elif 'type' in wanted:
                     filtered_income = self.incomeFile.loc[self.incomeFile['type_'].str.contains(wanted[6:])]
-                    print(filtered_income if not filtered_income.empty else 'no results found')
+                    return filtered_income if not filtered_income.empty else 'no results found'
                 elif 'source' in wanted:
                     filtered_income = self.incomeFile.loc[self.incomeFile['category'].str.contains(wanted[8:])]
-                    print(filtered_income if not filtered_income.empty else 'no results found')
+                    return filtered_income if not filtered_income.empty else 'no results found'
                 elif self.income_or_cost_val==2:
                     if 'explanation' in wanted:
                         filtered_costs = self.costsFile.loc[self.costsFile['description'].str.contains(wanted[13:])]
-                        print(filtered_costs if not filtered_costs.empty else 'no results found')
+                        return filtered_costs if not filtered_costs.empty else 'no results found'
                     elif 'type' in wanted:
                         filtered_costs = self.costsFile.loc[self.costsFile['type_'].str.contains(wanted[6:])]
-                        print(filtered_costs if not filtered_costs.empty else 'no results found')
+                        return filtered_costs if not filtered_costs.empty else 'no results found'
                     elif 'source' in wanted:
                         filtered_costs = self.costsFile.loc[self.costsFile['category'].str.contains(wanted[8:])]
-                        print(filtered_costs if not filtered_costs.empty else 'no results found')
+                        return filtered_costs if not filtered_costs.empty else 'no results found'
         else:
             return None
     def empty_filters(self):
@@ -122,23 +122,45 @@ class Search:
             searchText=input('enter the text you want to find in your data: ')
             filtered_income = self.search_initial_income(searchText)
             filtered_costs = self.search_initial_cost(searchText)
-            self.print_if_none_empty(filtered_income,filtered_costs)
+            return (filtered_income,filtered_costs) if not filtered_income.empty and not filtered_costs.empty else 'no results found!'
     def print_if_none_empty(self,filtered_income,filtered_costs):
             if not filtered_income.empty:
-                print(filtered_income)
+                return filtered_income
             if not filtered_costs.empty:
-                    print(filtered_costs)
+                return filtered_costs
             elif filtered_costs.empty and filtered_income.empty:
-                    print('no results found!')
+                    return 'no results found!'
     def show_search_results(self):
         k=[self.day_income_or_cost(),self.month_income_or_cost(),self.year_income_or_cost(),
            self.special_range(),self.specify()]
-        for result in k:
-            if isinstance(result,pandas.DataFrame):
-                print(result)
+        if '4' not in self.filters:
+            results_income=[k[i][0] for i in range(len(k)) if k[i] is not None and isinstance(k[i][0],pandas.DataFrame)]
+            results_costs=[k[i][1] for i in range(len(k)) if k[i] is not None and isinstance(k[i][1],pandas.DataFrame)]
+            final_result_income=results_income[0]
+            for result in results_income[1:]:
+                final_result_income=final_result_income.merge(result, how='inner')
+            final_result_costs=results_costs[0]
+            for result in results_costs[1:]:
+                final_result_costs=final_result_costs.merge(result,how='inner')
+            print('incomes: ')
+            print(final_result_income)
+            print('costs:')
+            print(final_result_costs)
+        elif self.income_or_cost_val==1:
+            results_income=[k[i] for i in range(len(k)) if k[i] is not None and isinstance(k[i],pandas.DataFrame)]
+            final_result_income=results_income[0]
+            for result in results_income[1:]:
+                final_result_income=final_result_income.merge(result, how='inner')
+            print('incomes',final_result_income)
+        elif self.income_or_cost_val==2:
+            results_costs=[k[i] for i in range(len(k)) if k[i] is not None and isinstance(k[i],pandas.DataFrame)]
+            final_result_costs=results_costs[0]
+            for result in results_costs[1:]:
+                final_result_costs=final_result_costs.merge(result,how='inner')
+            print('costs',final_result_costs)
+            
         
 if __name__=='__main__':
     searchEngine=Search()
     searchEngine.show_search_filters()
-    searchEngine.empty_filters()
     searchEngine.show_search_results()

@@ -54,7 +54,11 @@ class User:
         return 
     #گرفتن یوزرنیم از کاربر  که می تواند به هر شکل دلخواه باشد.
     def get_username(self,userName):
-        self.userName=userName
+        df=pandas.read_csv('users.csv')
+        if userName not in df['userName'].values:
+            self.userName=userName
+        else:
+            raise ValueError(Console().print('[bold red] this username already exits. try choosing a different one.'))
     #گرفتن پسورد در صورتی که شرایط دلخواه مسئله را رعایت کند
     def get_password(self,password):
         if len(password)>=6 and len(re.findall('[a-z]',password))>=1 and len(re.findall('[A-Z]',password))>=1 and len(re.findall("[!#$%&'()*+,-./:;<=>?@[\]^_`{|}~]",password))>=1 and len(re.findall('[0-9]',password))>=1:
@@ -83,11 +87,15 @@ class User:
         return 
     # بررسی معتبر بودن ایمیل و گرفتن از کاربر
     def get_email(self,email):
-        if bool(re.findall(r'[A-Za-z0-9]+@(gmail|yahoo)\.com',email))==True:
-            self.email=email
+        df=pandas.read_csv('users.csv')
+        if email not in df['email'].values:
+            if bool(re.findall(r'[A-Za-z0-9]+@(gmail|yahoo)\.com',email))==True:
+                self.email=email
+            else:
+                raise ValueError(Console().print(f'[bold red]Invalid email'))
+            return
         else:
-            raise ValueError(Console().print(f'[bold red]Invalid email'))
-        return
+            raise ValueError(Console().print('[bold red] this email already exits. try choosing a different one.'))
     def get_birth_date(self,birthDate):
         if bool(re.findall('[1-2][0-9][0-9][0-9]/[0-1][0-9]/[0-3][0-9]',birthDate))==True:
             year=birthDate[0:4]
@@ -118,12 +126,12 @@ class User:
             'lastName':[self.lastName],
             'nationalId':[self.nationalId],
             'phoneNumber':[self.phoneNumber],
-            'username':[self.userName],
+            'userName':[self.userName],
             'password':[self.password],
             'city':[self.city],
             'email':[self.email],
             'birthDate':[self.birthDate],
-            'securityQAnswer':[self.securityQAnswer]
+            'SecurityQAnswer':[self.securityQAnswer]
         }
         new_user=pandas.DataFrame(new_user)
         users=pandas.concat([users,new_user])
