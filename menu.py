@@ -1,4 +1,5 @@
 import time
+import sys
 from rich.console import Console
 from rich.text import Text
 from colors import blue, red, green, yellow, purple, cyan, magenta, white, black, gray
@@ -6,7 +7,6 @@ import msvcrt
 from registerFine import RegisterFine
 from category import Category
 from exit import exit
-
 
 class MainMenu():
     def __init__(self):
@@ -33,8 +33,7 @@ class MainMenu():
             else:
                 Console().print(Text(f"   {i + 1}- {option}", style=cyan))
 
-
-    def handle_input(self):
+    def handle_input(self, startTime):
         try:
             key = msvcrt.getch()
             if key == b'\xe0':  # Arrow keys are preceded by '\xe0'. if this condition not checked, we will get an invalid input error when using arrow keys
@@ -48,7 +47,7 @@ class MainMenu():
                 time.sleep(1)
                 return self.options[self.selectedOption]
             elif key == b'q':  # 'q' key
-                exit()
+                exit(startTime)
             elif key.isdigit():  # If a digit is pressed
                 optionNum = int(key)
                 if 1 <= optionNum <= len(self.options):
@@ -65,8 +64,7 @@ class MainMenu():
             # Pause to show the error message and then get input again if our input value was not valid.
             time.sleep(3)
         except Exception as e:
-            Console().print(
-                Text(f"An unexpected error occurred: {e}", style=red))
+            Console().print(Text(f"An unexpected error occurred: {e}", style=red))
             return None
 
 if __name__ == "__main__":
@@ -77,7 +75,7 @@ if __name__ == "__main__":
 
     while True:
         menu.display_menu()
-        selectedOptionName = menu.handle_input()
+        selectedOptionName = menu.handle_input(startTime)
         if selectedOptionName == menu.options[0]:
             register.registerIncome()
         elif selectedOptionName == menu.options[1]:
@@ -98,4 +96,4 @@ if __name__ == "__main__":
             print("Settings")
             time.sleep(2)  # Placeholder for settings functionality
         elif selectedOptionName == menu.options[6]:
-            exit()
+            exit(startTime)
