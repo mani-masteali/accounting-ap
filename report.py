@@ -5,7 +5,7 @@ class Report:
     def __init__(self):
         #allows the user to search their desired string
         self.incomeFile=pandas.read_csv('income.csv')
-        self.costsFile=pandas.read_csv('cost.csv')
+        self.costsFile=pandas.read_csv('expense.csv')
         self.choice=None
     def show_search_filters(self):
         print('choose one of these options')
