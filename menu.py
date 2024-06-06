@@ -2,11 +2,11 @@ import time
 from rich.console import Console
 from rich.text import Text
 from colors import blue, red, green, yellow, purple, cyan, magenta, white, black, gray
-import sys
 import msvcrt
 from registerFine import RegisterFine
 from category import Category
-from exit import exit 
+from exit import exit
+
 
 class MainMenu():
     def __init__(self):
@@ -33,6 +33,7 @@ class MainMenu():
             else:
                 Console().print(Text(f"   {i + 1}- {option}", style=cyan))
 
+
     def handle_input(self):
         try:
             key = msvcrt.getch()
@@ -42,6 +43,7 @@ class MainMenu():
                     self.selectedOption = (self.selectedOption - 1) % len(self.options)
                 elif keyCode == 80:  # Down arrow key
                     self.selectedOption = (self.selectedOption + 1) % len(self.options)
+                self.display_menu()
             elif key == b'\r':  # Enter key
                 time.sleep(1)
                 return self.options[self.selectedOption]
@@ -50,7 +52,10 @@ class MainMenu():
             elif key.isdigit():  # If a digit is pressed
                 optionNum = int(key)
                 if 1 <= optionNum <= len(self.options):
-                    return self.options[optionNum - 1]
+                    self.selectedOption = optionNum - 1
+                    self.display_menu()
+                    time.sleep(1)
+                    return self.options[self.selectedOption]
                 else:
                     raise ValueError("Number out of range")
             else:
@@ -60,7 +65,8 @@ class MainMenu():
             # Pause to show the error message and then get input again if our input value was not valid.
             time.sleep(3)
         except Exception as e:
-            Console().print(Text(f"An unexpected error occurred: {e}", style=red))
+            Console().print(
+                Text(f"An unexpected error occurred: {e}", style=red))
             return None
 
 if __name__ == "__main__":
