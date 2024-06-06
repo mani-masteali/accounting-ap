@@ -2,7 +2,6 @@ import time
 from rich.console import Console
 from rich.text import Text
 from colors import blue, red, green, yellow, purple, cyan, magenta, white, black, gray
-import sys
 import msvcrt
 from registerFine import RegisterFine
 from category import Category
@@ -23,7 +22,7 @@ class MainMenu():
 
     def display_menu(self, errorMessage=None):
         Console().clear()
-        Console().print(Text("Main Menu:", style=cyan))
+        Console().print(Text("Main Menu:", style=blue))
         Console().print(Text("Press arrow keys and enter button or press the number of your choice (range 1-7). Press 'q' to exit.", style=gray))
         if errorMessage:
             Console().print(Text(f"Error: {errorMessage}", style=red))
@@ -33,12 +32,15 @@ class MainMenu():
             else:
                 Console().print(Text(f"   {i + 1}- {option}", style=cyan))
 
+
     def handle_input(self):
         try:
             key = msvcrt.getch()
             if key == b'\xe0':  # Arrow keys are preceded by '\xe0'. if this condition not checked, we will get an invalid input error when using arrow keys
+            if key == b'\xe0':  # Arrow keys are preceded by '\xe0'. if this condition not checked, we will get an invalid input error when using arrow keys
                 keyCode = ord(msvcrt.getch())
                 if keyCode == 72:  # Up arrow key
+                    self.selectedOption = (self.selectedOption - 1) % len(self.options)
                     self.selectedOption = (self.selectedOption - 1) % len(self.options)
                 elif keyCode == 80:  # Down arrow key
                     self.selectedOption = (self.selectedOption + 1) % len(self.options)
@@ -46,11 +48,14 @@ class MainMenu():
                 time.sleep(1)
                 return self.options[self.selectedOption]
             elif key == b'q':  # 'q' key
-                self.exit()
+                exit()
             elif key.isdigit():  # If a digit is pressed
                 optionNum = int(key)
                 if 1 <= optionNum <= len(self.options):
-                    return self.options[optionNum - 1]
+                    self.selectedOption = optionNum - 1
+                    self.display_menu()
+                    time.sleep(1)
+                    return self.options[self.selectedOption]
                 else:
                     raise ValueError("Number out of range")
             else:
