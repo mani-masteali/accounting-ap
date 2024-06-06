@@ -29,7 +29,7 @@ class RegisterFine:
 
         amount = self.get_valid_input("Enter amount: ", self.is_amount_valid)
         date = self.get_valid_input(
-            f"Enter date in this format (mm/dd/yyyy). For example today is {datetime.now().strftime('%m/%d/%Y')}: ", self.is_date_valid)
+            f"Enter date in this format (yyyy/mm/dd). For example today is {datetime.now().strftime('%Y/%m/%d')}: ", self.is_date_valid)
         category = self.select_category(self.incomeCategories, "income")
         description = self.get_valid_input(
             "Enter description (optional, 100 characters at most): ", self.is_description_valid, optional=True)
@@ -37,17 +37,17 @@ class RegisterFine:
 
         record = [amount, date, category, description, type_]
         self.save_record(self.incomeFile, record)
-        Console().print(Text("Income saved successfully.",style=green))
+        Console().print(Text("Income saved successfully.", style=green))
 
     def registerExpense(self):
         if not self.expenseCategories:
-            Console().print(Text("No expense categories available. Please add categories first.",style=green))
+            Console().print(Text("No expense categories available. Please add categories first.", style=green))
             self.category.add_category("expense")
             self.expenseCategories = self.category.expenseCategories
 
         amount = self.get_valid_input("Enter amount: ", self.is_amount_valid)
         date = self.get_valid_input(
-            f"Date must be in this format mm/dd/yyyy. For example today is {datetime.now().strftime('%m/%d/%Y')}: ", self.is_date_valid)
+            f"Date must be in this format yyyy/mm/dd. For example today is {datetime.now().strftime('%Y/%m/%d')}: ", self.is_date_valid)
         category = self.select_category(self.expenseCategories, "expense")
         description = self.get_valid_input(
             "Enter description (optional, 100 characters at most): ", self.is_description_valid, optional=True)
@@ -55,11 +55,11 @@ class RegisterFine:
 
         record = [amount, date, category, description, type_]
         self.save_record(self.expenseFile, record)
-        Console().print(Text("Expense saved successfully.",style=green))
+        Console().print(Text("Expense saved successfully.", style=green))
 
     def get_valid_input(self, prompt, validationFunc, optional=False):
         while True:
-            user_input = Console().input(Text(prompt,style=blue))
+            user_input = Console().input(Text(prompt, style=blue))
             if optional and user_input == '':
                 return ''
             if validationFunc(user_input):
@@ -79,7 +79,7 @@ class RegisterFine:
 
     def is_date_valid(self, date):
         try:
-            inputDate = datetime.strptime(date, '%m/%d/%Y')
+            inputDate = datetime.strptime(date, '%Y/%m/%d')
             if inputDate > datetime.now():
                 if self.confirm_future_date():
                     return True
@@ -87,7 +87,8 @@ class RegisterFine:
                     return False
             return True
         except ValueError:
-            Console().print(Text(f"Date must be in this format mm/dd/yyyy. For example today is {datetime.now().strftime('%m/%d/%Y')}",style=red))
+            Console().print(Text(f"Date must be in this format yyyy/mm/dd. For example today is {
+                datetime.now().strftime('%Y/%m/%d')}", style=red))
             return False
 
     def confirm_future_date(self):
@@ -140,7 +141,7 @@ class RegisterFine:
         if len(description) <= 100:
             return True
         else:
-            Console().print(Text("Description must be 100 characters or less.",style=red))
+            Console().print(Text("Description must be 100 characters or less.", style=red))
             return False
 
     def save_record(self, file, record):
@@ -191,7 +192,7 @@ class RegisterFine:
             if selectedType:
                 return selectedType
             elif selectedType is None:
-                Console().print(Text("Type selection canceled.",style=yellow))
+                Console().print(Text("Type selection canceled.", style=yellow))
                 return ''
 
     def display_category_menu(self, categories, categoryType, errorMessage=None):
@@ -242,4 +243,5 @@ class RegisterFine:
             if selectedCategory:
                 return selectedCategory
             elif selectedCategory is None:
-                Console().print(Text(f"{categoryType.capitalize()} category selection canceled.",style=yellow))
+                Console().print(
+                    Text(f"{categoryType.capitalize()} category selection canceled.", style=yellow))
