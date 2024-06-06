@@ -130,16 +130,22 @@ class Search:
                 return filtered_costs
             elif filtered_costs.empty and filtered_income.empty:
                     return 'no results found!'
+    def back_to_the_main_menu(self):
+        option=input('type Main Menu to get back:\n')
+        return option
     def show_search_results(self):
         k=[self.day_income_or_cost(),self.month_income_or_cost(),self.year_income_or_cost(),
-           self.special_range(),self.specify()]
+        self.special_range(),self.specify()]
         if '4' not in self.filters:
             results_income=[k[i][0] for i in range(len(k)) if k[i] is not None and isinstance(k[i][0],pandas.DataFrame)]
             results_costs=[k[i][1] for i in range(len(k)) if k[i] is not None and isinstance(k[i][1],pandas.DataFrame)]
-            final_result_income=results_income[0]
+            try:
+                final_result_income=results_income[0]
+                final_result_costs=results_costs[0]
+            except:
+                print('no results found!')
             for result in results_income[1:]:
                 final_result_income=final_result_income.merge(result, how='inner')
-            final_result_costs=results_costs[0]
             for result in results_costs[1:]:
                 final_result_costs=final_result_costs.merge(result,how='inner')
             print('incomes: ')
@@ -148,19 +154,19 @@ class Search:
             print(final_result_costs)
         elif self.income_or_cost_val==1:
             results_income=[k[i] for i in range(len(k)) if k[i] is not None and isinstance(k[i],pandas.DataFrame)]
-            final_result_income=results_income[0]
+            try:
+                final_result_income=results_income[0]
+            except:
+                print('no results found!')
             for result in results_income[1:]:
                 final_result_income=final_result_income.merge(result, how='inner')
             print('incomes',final_result_income)
         elif self.income_or_cost_val==2:
             results_costs=[k[i] for i in range(len(k)) if k[i] is not None and isinstance(k[i],pandas.DataFrame)]
-            final_result_costs=results_costs[0]
+            try:
+                final_result_costs=results_costs[0]
+            except:
+                print('no results found!')
             for result in results_costs[1:]:
                 final_result_costs=final_result_costs.merge(result,how='inner')
             print('costs',final_result_costs)
-            
-        
-if __name__=='__main__':
-    searchEngine=Search()
-    searchEngine.show_search_filters()
-    searchEngine.show_search_results()

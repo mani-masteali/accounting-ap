@@ -124,8 +124,3 @@ class Report:
         for result in k:
             if isinstance(result,pandas.DataFrame):
                 print(result)
-            
-if __name__=='__main__':
-    reportCard=Report()
-    reportCard.show_search_filters()
-    reportCard.show_search_results()
