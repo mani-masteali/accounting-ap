@@ -30,7 +30,7 @@ class Category:
 
     def add_category(self, categoryType):
         while True:
-            category = input(f"Enter new {categoryType} category name: ")
+            category = input(f"Enter new {categoryType} category name: ").capitalize()
             if self.is_category_valid(category):
                 if categoryType == "income":
                     if category in self.incomeCategories:

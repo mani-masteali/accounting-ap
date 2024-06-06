@@ -14,9 +14,11 @@ class RegisterFine:
         self.category = Category(incomeCategoryFile, expenseCategoryFile)
         self.incomeCategories = self.category.incomeCategories
         self.expenseCategories = self.category.expenseCategories
-        self.types = ['Cash', 'Check', 'Cryptocurrency']
+        self.types = ['1- Cash', '2- Check', '3- Cryptocurrency']
+        self.yes_no_options = ['Yes', 'No']
         self.selectedTypeIndex = 0
         self.selectedCategoryIndex = 0
+        self.selectedYesNoIndex = 0
 
     def registerIncome(self):
         if not self.incomeCategories:
@@ -26,7 +28,7 @@ class RegisterFine:
 
         amount = self.get_valid_input("Enter amount: ", self.is_amount_valid)
         date = self.get_valid_input(
-            "Enter date in this format (mm/dd/yyyy): ", self.is_date_valid)
+            f"Enter date in this format (mm/dd/yyyy) (today is {datetime.now().strftime('%m/%d/%Y')}): ", self.is_date_valid)
         category = self.select_category(self.incomeCategories, "income")
         description = self.get_valid_input(
             "Enter description (optional, 100 characters at most): ", self.is_description_valid, optional=True)
@@ -44,7 +46,7 @@ class RegisterFine:
 
         amount = self.get_valid_input("Enter amount: ", self.is_amount_valid)
         date = self.get_valid_input(
-            "Enter date in this format (mm/dd/yyyy): ", self.is_date_valid)
+            f"Date must be in this format mm/dd/yyyy. For example today is {datetime.now().strftime('%m/%d/%Y')}", self.is_date_valid)
         category = self.select_category(self.expenseCategories, "expense")
         description = self.get_valid_input(
             "Enter description (optional, 100 characters at most): ", self.is_description_valid, optional=True)
@@ -54,12 +56,12 @@ class RegisterFine:
         self.save_record(self.expenseFile, record)
         print("Expense saved successfully.")
 
-    def get_valid_input(self, prompt, validation_func, optional=False):
+    def get_valid_input(self, prompt, validationFunc, optional=False):
         while True:
             user_input = input(prompt)
             if optional and user_input == '':
                 return ''
-            if validation_func(user_input):
+            if validationFunc(user_input):
                 return user_input
 
     def is_amount_valid(self, amount):
@@ -76,11 +78,61 @@ class RegisterFine:
 
     def is_date_valid(self, date):
         try:
-            datetime.strptime(date, '%m/%d/%Y')
+            inputDate = datetime.strptime(date, '%m/%d/%Y')
+            if inputDate > datetime.now():
+                if self.confirm_future_date():
+                    return True
+                else:
+                    return False
             return True
         except ValueError:
-            print("Date must be in the format mm/dd/yyyy.")
+            print(f"Date must be in this format mm/dd/yyyy. For example today is {datetime.now().strftime('%m/%d/%Y')}")
             return False
+
+    def confirm_future_date(self):
+        while True:
+            selectedOption = self.handle_yes_no_input()
+            if selectedOption == 'Yes':
+                return True
+            elif selectedOption == 'No':
+                return False
+
+    def display_yes_no_menu(self, errorMessage=None):
+        console = Console()
+        console.clear()
+        console.print(Text("The date entered is in the future. Are you sure you want to enter a future date?", style="cyan"))
+        console.print(
+            Text("Use arrow keys to navigate and Enter to select. Input the number of your choice.", style="gray"))
+        if errorMessage:
+            console.print(Text(f"Error: {errorMessage}", style="red"))
+        for i, option in enumerate(self.yesNoOptions):
+            if i == self.selectedYesNoIndex:
+                console.print(Text(f"-> {i+1}. {option}", style="blue"))
+            else:
+                console.print(Text(f"   {i+1}. {option}", style="cyan"))
+
+    def handle_yes_no_input(self):
+        while True:
+            self.display_yes_no_menu()
+            time.sleep(1)
+            key = msvcrt.getch()
+            if key == b'\xe0':  # Arrow keys are preceded by '\xe0'
+                keyCode = ord(msvcrt.getch())
+                if keyCode == 72:  # Up arrow key
+                    self.selectedYesNoIndex = (
+                        self.selectedYesNoIndex - 1) % len(self.yesNoOptions)
+                elif keyCode == 80:  # Down arrow key
+                    self.selectedYesNoIndex = (
+                        self.selectedYesNoIndex + 1) % len(self.yesNoOptions)
+            elif key.isdigit():  # If a digit is pressed
+                optionNum = int(key)
+                if 1 <= optionNum <= len(self.yesNoOptions):
+                    self.selectedYesNoIndex = optionNum - 1
+                    self.display_yes_no_menu()  # Display menu again to update colors
+                    time.sleep(1)
+                    return self.yes_no_options[self.selectedYesNoIndex]
+            elif key == b'\r':  # Enter key
+                return self.yes_no_options[self.selectedYesNoIndex]
 
     def is_description_valid(self, description):
         if len(description) <= 100:
@@ -111,7 +163,7 @@ class RegisterFine:
     def handle_type_input(self):
         while True:
             self.display_type_menu()
-            time.sleep(1) 
+            time.sleep(1)
             key = msvcrt.getch()
             if key == b'\xe0':  # Arrow keys are preceded by '\xe0'
                 keyCode = ord(msvcrt.getch())
@@ -128,6 +180,8 @@ class RegisterFine:
                     self.display_type_menu()  # Display menu again to update colors
                     time.sleep(1)
                     return self.types[self.selectedTypeIndex]
+            elif key == b'\r':  # Enter key
+                return self.types[self.selectedTypeIndex]
 
     def select_type(self):
         while True:
@@ -186,5 +240,4 @@ class RegisterFine:
             if selectedCategory:
                 return selectedCategory
             elif selectedCategory is None:
-                print(f"{categoryType.capitalize()
-                         } category selection canceled.")
+                print(f"{categoryType.capitalize()} category selection canceled.")

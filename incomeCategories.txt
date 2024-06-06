@@ -1,2 +1,2 @@
 salary
-benefit
+Benefit
