@@ -38,7 +38,6 @@ class MainMenu():
             else:
                 Console().print(Text(f"   {i + 1}- {option}", style=cyan))
 
-
     def handle_input(self):
         try:
             key = msvcrt.getch()
@@ -59,7 +58,6 @@ class MainMenu():
                 if 1 <= optionNum <= len(self.options):
                     self.selectedOption = optionNum - 1
                     self.display_menu()
-                    time.sleep(1)
                     return self.options[self.selectedOption]
                 else:
                     raise ValueError("Number out of range")
@@ -74,53 +72,82 @@ class MainMenu():
                 Text(f"An unexpected error occurred: {e}", style=red))
             return None
 
+
+def get_input_with_retry(prompt, validate, style=blue, errorStyle=red):
+    while True:
+        value = Console().input(Text(prompt, style=style))
+        try:
+            validate(value)
+            return value
+        except ValueError as e:
+            pass
+           
+            time.sleep(2)
+
 if __name__ == "__main__":
-    menu=FirstMenu()
-    menu.show_menu()
-    option=input()
-    if option=='1':
+    menu = FirstMenu()
+
+    option = menu.show_menu()
+
+    if option == 1:
+        first_name = last_name = national_id = phone_number = username = password = confirmed_password = city = email = birth_date = security_answer = None
         while True:
-            userX=User()
+            userX = User()
             try:
-                userX.get_first_name(input('first name: '))
-                userX.get_last_name(input('last name: '))
-                userX.get_code_meli(input('national id: '))
-                userX.get_phone_number(input('mobile number: '))
-                userX.get_username(input('user name: '))
-                userX.get_password(pwinput.pwinput(prompt='enter password:'))
-                userX.check_repeated_password(pwinput.pwinput(prompt='confrim password:'))
-                userX.get_city(str(Console().input(f'[bold white] please choose the city from this list: [cyan] {userX.savedcities} \n :')))
-                userX.get_email(input('email: '))
-                userX.get_birth_date(input('birth date: (yyyy/mm/dd) '))
-                userX.get_security_questions_answer(input('What is your favorite car brand? '))
+                if not first_name:
+                    first_name = get_input_with_retry("First name: ", userX.get_first_name)
+                if not last_name:
+                    last_name = get_input_with_retry("Last name: ", userX.get_last_name)
+                if not national_id:
+                    national_id = get_input_with_retry("National ID: ", userX.get_code_meli)
+                if not phone_number:
+                    phone_number = get_input_with_retry("Mobile number: ", userX.get_phone_number)
+                if not username:
+                    username = get_input_with_retry("User name: ", userX.get_username)
+                if not password:
+                    password = get_input_with_retry('Enter password: ', userX.get_password)
+                if not confirmed_password:
+                    confirmed_password = get_input_with_retry('Confirm password: ', userX.check_repeated_password)
+                if not city:
+                    city = get_input_with_retry(f'Please choose the city from this list:{userX.savedcities} \n :', userX.get_city)
+                if not email:
+                    email = get_input_with_retry("Email: ", userX.get_email)
+                if not birth_date:
+                    birth_date = get_input_with_retry("Birthday (yyyy/mm/dd) : ", userX.get_birth_date)
+                if not security_answer:
+                    security_answer = get_input_with_retry("What is your favorite car brand? ", userX.get_security_questions_answer)
+                
                 userX.save_csv()
-                last_option=str(Console().input('[green] type submit to continue\n'))
-                if last_option=='submit':
-                    Console().print('[bold green] welcome to the app!')
+                
+                last_option = str(Console().input(Text('Type submit to continue\n', style=gray)))
+                if last_option == 'submit':
+                    Console().print(Text("Welcome to the app!", style=green))
                     time.sleep(2)
                     break
                 else:
-                    Console().print('[bold red] Invalid input')
+                    Console().print(Text("Invalid input", style=red))
             except ValueError as error:
-                print(error)
-    elif option=='2':
-        count=0
+                Console().print(Text(str(error), style=red))
+                time.sleep(2)
+    elif option == 2:
+        count = 0
         while True:
-            userName=input('username: ')
-            password=pwinput.pwinput(prompt='password: ')
-            if login_user(userName,password)==True:
-                Console().print(Text('login was succesful!'),style=green)
+            userName = Console().input(Text("Username: ", style=blue))
+            password = pwinput.pwinput(prompt='Password: ')
+            if login_user(userName, password):
+                Console().print(Text('Login was successful!', style=green))
                 time.sleep(2)
                 break
             else:
-                Console().print(Text('username or password is wrong or does not exist!'),style=red)
-                count+=1
+                Console().print(Text('Username or password is wrong or does not exist!', style=red))
+                count += 1
                 count_wrong_enters(count)
-                forgotOrNot=input('forgot your password? ')
-                if forgotOrNot=='Yes' or forgotOrNot=='yes':
-                    userNameOrEmail=input('enter your username or email: ')
-                    securityQAnswer=input('What is your favorite car brand? ')
-                    forgot_password(userNameOrEmail,securityQAnswer)
+                forgotOrNot = Console().input(Text("Forgot your password? (yes/no)", style=blue))
+                if forgotOrNot.lower() == 'yes':
+                    userNameOrEmail = Console().input(Text("Enter your username or email: ", style=blue))
+                    securityQAnswer = Console().input(Text("What is your favorite car brand? ", style=blue))
+                    forgot_password(userNameOrEmail, securityQAnswer)
+
     startTime = time.time()  # Start menu and app usage time recording
     menu = MainMenu()
     register = RegisterFine()
@@ -139,18 +166,16 @@ if __name__ == "__main__":
                 category = Category()
                 continue
         elif selectedOptionName == menu.options[3]:
-            print("Search")
             time.sleep(2)  # Placeholder for search functionality
-            searchEngine=Search()
+            searchEngine = Search()
             searchEngine.show_search_filters()
             searchEngine.show_search_results()
-            #an option to make the menu stationary until the users demands for exit
-            if searchEngine.back_to_the_main_menu()=='Main Window':
+            # an option to make the menu stationary until the users demands for exit
+            if searchEngine.back_to_the_main_menu() == 'Main Window':
                 continue
         elif selectedOptionName == menu.options[4]:
-            print("Reporting")
             time.sleep(2)  # Placeholder for reporting functionality
-            reportCard=Report()
+            reportCard = Report()
             reportCard.show_search_filters()
             reportCard.show_search_results()
             time.sleep(20)
