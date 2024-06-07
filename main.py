@@ -53,7 +53,7 @@ class MainMenu():
                 time.sleep(1)
                 return self.options[self.selectedOption]
             elif key == b'q':  # 'q' key
-                exit()
+                startTime
             elif key.isdigit():  # If a digit is pressed
                 optionNum = int(key)
                 if 1 <= optionNum <= len(self.options):
@@ -158,4 +158,4 @@ if __name__ == "__main__":
             print("Settings")
             time.sleep(20)  # Placeholder for settings functionality
         elif selectedOptionName == menu.options[6]:
-            exit()
+            exit(startTime)
