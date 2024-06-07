@@ -4,4 +4,5 @@ __pycache__/
 ~WRL2390.tmp
 ~$کیومنت پروژه.docx
 __pycache__/colors.cpython-312.pyc
-users.csv
+users.csv__pycache__/
+*.pyc
