@@ -144,6 +144,7 @@ if __name__ == "__main__":
             searchEngine=Search()
             searchEngine.show_search_filters()
             searchEngine.show_search_results()
+            #an option to make the menu stationary until the users demands for exit
             if searchEngine.back_to_the_main_menu()=='Main Window':
                 continue
         elif selectedOptionName == menu.options[4]:
