@@ -8,7 +8,8 @@ from category import Category
 from search import Search
 from report import Report
 from exit import exit
-from login_and_signup_menu import FirstMenu,getpass
+from login_and_signup_menu import FirstMenu
+import pwinput
 from login import *
 from signup import *
 
@@ -86,8 +87,8 @@ if __name__ == "__main__":
                 userX.get_code_meli(input('national id: '))
                 userX.get_phone_number(input('mobile number: '))
                 userX.get_username(input('user name: '))
-                userX.get_password(getpass.getpass('enter password:'))
-                userX.check_repeated_password(getpass.getpass('confrim password:'))
+                userX.get_password(pwinput.pwinput(prompt='enter password:'))
+                userX.check_repeated_password(pwinput.pwinput(prompt='confrim password:'))
                 userX.get_city(str(Console().input(f'[bold white] please choose the city from this list: [cyan] {userX.savedcities} \n :')))
                 userX.get_email(input('email: '))
                 userX.get_birth_date(input('birth date: (yyyy/mm/dd) '))
@@ -106,7 +107,7 @@ if __name__ == "__main__":
         count=0
         while True:
             userName=input('username: ')
-            password=getpass.getpass('password: ')
+            password=pwinput.pwinput(prompt='password: ')
             if login_user(userName,password)==True:
                 Console().print(Text('login was succesful!'),style=green)
                 time.sleep(2)
@@ -143,6 +144,7 @@ if __name__ == "__main__":
             searchEngine=Search()
             searchEngine.show_search_filters()
             searchEngine.show_search_results()
+            #an option to make the menu stationary until the users demands for exit
             if searchEngine.back_to_the_main_menu()=='Main Window':
                 continue
         elif selectedOptionName == menu.options[4]:
