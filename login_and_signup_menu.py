@@ -2,7 +2,6 @@ from colors import green,blue,cyan,red
 from rich.console import Console
 from rich.text import Text
 from signup import User
-import getpass
 from login import login_user,count_wrong_enters,forgot_password
 
 class FirstMenu():

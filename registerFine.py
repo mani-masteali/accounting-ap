@@ -87,8 +87,7 @@ class RegisterFine:
                     return False
             return True
         except ValueError:
-            Console().print(Text(f"Date must be in this format yyyy/mm/dd. For example today is {
-                datetime.now().strftime('%Y/%m/%d')}", style=red))
+            Console().print(Text("Date must be in this format yyyy/mm/dd. For example today is {datetime.now().strftime('%Y/%m/%d')}"),style=red)
             return False
 
     def confirm_future_date(self):

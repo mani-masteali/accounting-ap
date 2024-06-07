@@ -3,8 +3,11 @@ class Search:
     def __init__(self):
         #allows the user to search their desired string
         self.searchedText=None
-        self.incomeFile=pandas.read_csv('income.csv')
-        self.costsFile=pandas.read_csv('cost.csv')
+        try:
+            self.incomeFile=pandas.read_csv('income.csv')
+            self.costsFile=pandas.read_csv('expense.csv')
+        except:
+            print('one of the categories are empty')
         self.filters=[]
     #this allows us to print the filters
     def show_search_filters(self):
@@ -149,9 +152,12 @@ class Search:
             for result in results_costs[1:]:
                 final_result_costs=final_result_costs.merge(result,how='inner')
             print('incomes: ')
-            print(final_result_income)
-            print('costs:')
-            print(final_result_costs)
+            try:
+                print(final_result_income)
+                print('costs:')
+                print(final_result_costs)
+            except:
+                pass
         elif self.income_or_cost_val==1:
             results_income=[k[i] for i in range(len(k)) if k[i] is not None and isinstance(k[i],pandas.DataFrame)]
             try:
