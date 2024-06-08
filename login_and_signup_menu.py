@@ -7,7 +7,7 @@ import msvcrt
 import time
 class FirstMenu:
     def __init__(self):
-        self.menuOptions = ['sign up', 'log in']
+        self.menuOptions = ['Sign up', 'Log in']
         self.selectedOption = 0
 
     def show_menu(self):
