@@ -88,8 +88,7 @@ def get_input_with_retry(prompt, validate, style=blue, errorStyle=red):
             validate(value)
             return value
         except ValueError as e:
-            Console().print(Text(str(e), style=errorStyle))
-            time.sleep(2)
+            pass
 
 
 if __name__ == "__main__":
@@ -124,7 +123,7 @@ if __name__ == "__main__":
                     confirmedPassword = get_input_with_retry(
                         'Confirm password: ', userX.check_repeated_password)
                 if not city:
-                    city = get_input_with_retry(f'Please choose the city from this list:{userX.savedcities} \n :', userX.get_city)
+                    city = get_input_with_retry(f'Please choose your city from this list:\n{userX.savedcities} \n :', userX.get_city)
                 if not email:
                     email = get_input_with_retry("Email: ", userX.get_email)
                 if not birthDate:
@@ -137,7 +136,6 @@ if __name__ == "__main__":
                 userX.save_csv()
                 Console().print(Text('Press enter button to continue:\n', style=yellow))
                 lastOption  = msvcrt.getch()
-                Console().print(Text('Press enter button to continue:\n', style=yellow))
                 if lastOption == b'\r':
                     Console().print(Text("Welcome to the app!", style=green))
                     time.sleep(2)

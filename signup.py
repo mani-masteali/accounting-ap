@@ -16,8 +16,38 @@ class User:
         self.email=None
         self.birthDate=None
         self.securityQAnswer=None
-        self.savedcities=['Tehran','Isfahan','Mashhad','Tabriz','Shiraz','Karaj','Qom','Yazd','Rasht','Sari']
-    # بررسی معتبر بودن اسم کوچک و تعریف آن برای کاربر
+        self.savedcities = [
+            'Alborz',
+            'Ardabil',
+            'Bushehr',
+            'Chaharmahal and Bakhtiari',
+            'East Azerbaijan',
+            'Fars',
+            'Gilan',
+            'Golestan',
+            'Hamadan',
+            'Hormozgan',
+            'Ilam',
+            'Isfahan',
+            'Kerman',
+            'Kermanshah',
+            'Khuzestan',
+            'Kohgiluyeh and Buyer Ahmad',
+            'Kurdistan',
+            'Lorestan',
+            'Markazi',
+            'Mazandaran',
+            'North Khorasan',
+            'Qazvin',
+            'Qom',
+            'Razavi Khorasan',
+            'Semnan',
+            'Sistan and Baluchestan',
+            'South Khorasan',
+            'Tehran',
+            'West Azerbaijan',
+            'Yazd',
+            'Zanjan']            # بررسی معتبر بودن اسم کوچک و تعریف آن برای کاربر
     def get_first_name(self,firstName):
         if len(re.findall('[a-z]',firstName))+len(re.findall('[A-Z]',firstName)) == len(firstName):
             self.firstName=firstName
