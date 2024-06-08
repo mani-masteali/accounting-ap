@@ -123,9 +123,26 @@ class Search:
     def empty_filters(self):
         if '0' in self.filters:
             searchText=input('enter the text you want to find in your data: ')
-            filtered_income = self.search_initial_income(searchText)
-            filtered_costs = self.search_initial_cost(searchText)
-            return (filtered_income,filtered_costs) if not filtered_income.empty and not filtered_costs.empty else 'no results found!'
+            try:
+                filtered_income = self.incomeFile.loc[
+                    (self.incomeFile['description'].str.contains(searchText, case=False)) |
+                    (self.incomeFile['date'].str.contains(searchText, case=False)) |
+                    (self.incomeFile['category'].str.contains(searchText, case=False)) |
+                    (self.incomeFile['type_'].str.contains(searchText, case=False))
+                ]
+
+                filtered_costs = self.costsFile.loc[
+                    (self.costsFile['description'].str.contains(searchText, case=False)) |
+                    (self.costsFile['date'].str.contains(searchText, case=False)) |
+                    (self.costsFile['category'].str.contains(searchText, case=False)) |
+                    (self.costsFile['type_'].str.contains(searchText, case=False))
+                ]
+            except:
+                print('Invalid text')
+            if  not filtered_income.empty and not filtered_costs.empty and filtered_income is not None and filtered_costs is not None:
+                return (filtered_income,filtered_costs) 
+            else:
+                return 'no results found!'
     def print_if_none_empty(self,filtered_income,filtered_costs):
             if not filtered_income.empty:
                 return filtered_income
@@ -138,7 +155,7 @@ class Search:
         return option
     def show_search_results(self):
         k=[self.day_income_or_cost(),self.month_income_or_cost(),self.year_income_or_cost(),
-        self.special_range(),self.specify()]
+        self.special_range(),self.specify(),self.empty_filters()]
         if '4' not in self.filters:
             results_income=[k[i][0] for i in range(len(k)) if k[i] is not None and isinstance(k[i][0],pandas.DataFrame)]
             results_costs=[k[i][1] for i in range(len(k)) if k[i] is not None and isinstance(k[i][1],pandas.DataFrame)]
