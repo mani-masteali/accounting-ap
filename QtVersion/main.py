@@ -7,9 +7,10 @@ app = QApplication(sys.argv)
 class MyWindow(QMainWindow):
     def __init__(self):
         super().__init__()
+        self.setWindowIcon(QIcon("QtVersion/Logo.png"))
         self.setWindowTitle("ElmosBalance")
-        self.setWindowIcon(QIcon('./Logo.png'))
         self.showMaximized()
+
 
 window = MyWindow()
 window.show()
