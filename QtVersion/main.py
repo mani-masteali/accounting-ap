@@ -1,4 +1,4 @@
-from PyQt6.QtWidgets import QApplication, QMainWindow, QPushButton, QLabel, QLineEdit, QGridLayout, QWidget
+from PyQt6.QtWidgets import QApplication, QMainWindow, QPushButton, QLabel, QLineEdit, QGridLayout, QWidget, QComboBox, QDateEdit
 import sys
 import re
 from PyQt6.QtGui import QIcon
@@ -16,39 +16,8 @@ class User:
         self.city=None
         self.email=None
         self.birthDate=None
-        self.securityQAnswer=None
-        self.savedcities = [
-            'Alborz',
-            'Ardabil',
-            'Bushehr',
-            'Chaharmahal and Bakhtiari',
-            'East Azerbaijan',
-            'Fars',
-            'Gilan',
-            'Golestan',
-            'Hamadan',
-            'Hormozgan',
-            'Ilam',
-            'Isfahan',
-            'Kerman',
-            'Kermanshah',
-            'Khuzestan',
-            'Kohgiluyeh and Buyer Ahmad',
-            'Kurdistan',
-            'Lorestan',
-            'Markazi',
-            'Mazandaran',
-            'North Khorasan',
-            'Qazvin',
-            'Qom',
-            'Razavi Khorasan',
-            'Semnan',
-            'Sistan and Baluchestan',
-            'South Khorasan',
-            'Tehran',
-            'West Azerbaijan',
-            'Yazd',
-            'Zanjan']            # بررسی معتبر بودن اسم کوچک و تعریف آن برای کاربر
+        self.securityQAnswer=None            
+    # بررسی معتبر بودن اسم کوچک و تعریف آن برای کاربر
     def get_first_name(self,firstName):
         if len(re.findall('[a-z]',firstName))+len(re.findall('[A-Z]',firstName)) == len(firstName):
             self.firstName=firstName
@@ -100,11 +69,12 @@ class User:
     #برای تایید رمز عبور  
     def check_repeated_password(self,repeatedPassword):
         if repeatedPassword!=self.password:
-            print('passwords do not match')
-    # گرفتن نام شهر از کاربر در صورتی که در لیست تعریف شده باشد
+            raise ValueError('passwords do not match')
+        else:
+            return 0
+    # گرفتن نام شهر از کاربر از لیست شهر های تعریف شده در رابط گرافیکی
     def get_city(self,city):
-        pass
-        #will be defined when the city menu is initialized
+        self.city=city
     # بررسی معتبر بودن ایمیل و گرفتن از کاربر
     def get_email(self,email):
         #will check if the email exists in the database later
@@ -122,14 +92,13 @@ class User:
                 if 1<=int(day)<=max_days[int(month)]:
                     self.birthDate=birthDate
                 else:
-                    raise ValueError(f'invalid day. this month has only {max_days[month]}')
+                    raise ValueError(f'invalid day. this month has only {max_days[int(month)]}')
             elif int(year)<1920 or int(year)>2005:
                 raise ValueError(f'birth year must be between 1920 and 2005')
             elif int(month)<1 or int(month)>12:
                 raise ValueError(f'month must be between 1 and 12')
         else:
             raise ValueError(f'invalid birth date format')
-        return
     #گرفتن پاسخ سوال امنیتی که از کاربر پرسیده می شود
     def get_security_questions_answer(self,answer):
         self.securityQAnswer=answer
@@ -184,6 +153,70 @@ class SignupLoginMenu():
         self.nationalIDLabel=QLabel('enter your national id: ',self.window)
         self.nationalIDLine=QLineEdit(self.window)
         self.nationalIDwarning=QLabel(' ',self.window)
+        #variables for phone number
+        self.phoneNumberLabel=QLabel('enter your phone number: ',self.window)
+        self.phoneNumberLine=QLineEdit(self.window)
+        self.phonenumberwarning=QLabel(' ',self.window)
+        #variabled for user name
+        self.userNameLabel=QLabel('enter your user name: ',self.window)
+        self.userNameLine=QLineEdit(self.window)
+        self.usernamewarning=QLabel(' ',self.window)
+        #variables for password
+        self.passwordLabel=QLabel('enter your password: ',self.window)
+        self.passwordLine=QLineEdit(self.window)
+        self.passwordLine.setEchoMode(QLineEdit.EchoMode.Password)
+        self.passwordwarning=QLabel(' ',self.window)
+        #variables for repeated password
+        self.repeatedpasswordLabel=QLabel('confirm your password: ',self.window)
+        self.repeatedpasswordLine=QLineEdit(self.window)
+        self.repeatedpasswordLine.setEchoMode(QLineEdit.EchoMode.Password)
+        self.repeatedpasswordwarning=QLabel(' ',self.window)
+        #variables for choosing the city
+        self.cityLabel=QLabel('choose your city: ',self.window)
+        self.cityCombobox=QComboBox(self.window)
+        self.cities=['Karaj',
+            'Ardabil',
+            'Bushehr',
+            'Shahrekord',
+            'Tabriz',
+            'Shiraz',
+            'Rasht',
+            'Gorgan',
+            'Hamadan',
+            'Bandar Abas',
+            'Ilam',
+            'Isfahan',
+            'Kerman',
+            'Kermanshah',
+            'Ahwaz',
+            'Yasuj',
+            'Sanandaj',
+            'Khoramabad',
+            'Arak',
+            'Sari',
+            'Bojnurd',
+            'Qazvin',
+            'Qom',
+            'Mashhad',
+            'Semnan',
+            'Zahedan',
+            'Birjand',
+            'Tehran',
+            'Urmia',
+            'Yazd',
+            'Zanjan']
+        self.cityCombobox.addItems(self.cities)
+        #variables for email
+        self.emailLabel=QLabel('enter your email: ',self.window)
+        self.emailLine=QLineEdit(self.window)
+        self.emailwarning=QLabel(' ',self.window)
+        #variables for date
+        self.dateLabel=QLabel('enter your birth date: ',self.window)
+        self.dateLine=QLineEdit(self.window)
+        self.datewarning=QLabel(' ',self.window)
+        #variables for security question answers
+        self.securityLabel=QLabel('What is your favorite car brand?')
+        self.securityLine=QLineEdit(self.window)
         #submit button
         self.submit=QPushButton('Submit',self.window)
         self.submit.clicked.connect(self.submit_button)
@@ -197,7 +230,29 @@ class SignupLoginMenu():
         layout.addWidget(self.nationalIDLabel, 2, 0)
         layout.addWidget(self.nationalIDLine, 2, 1)
         layout.addWidget(self.nationalIDwarning, 2, 2)
-        layout.addWidget(self.submit, 3, 0, 1, 3)
+        layout.addWidget(self.phoneNumberLabel, 3, 0)
+        layout.addWidget(self.phoneNumberLine, 3, 1)
+        layout.addWidget(self.phonenumberwarning,3,2)
+        layout.addWidget(self.userNameLabel, 4, 0)
+        layout.addWidget(self.userNameLine, 4, 1)
+        layout.addWidget(self.usernamewarning, 4, 2)
+        layout.addWidget(self.passwordLabel, 5, 0)
+        layout.addWidget(self.passwordLine, 5, 1)
+        layout.addWidget(self.passwordwarning, 5, 2)
+        layout.addWidget(self.repeatedpasswordLabel, 6, 0)
+        layout.addWidget(self.repeatedpasswordLine, 6, 1)
+        layout.addWidget(self.repeatedpasswordwarning, 6, 2)
+        layout.addWidget(self.cityLabel, 7, 0)
+        layout.addWidget(self.cityCombobox, 7, 1)
+        layout.addWidget(self.emailLabel, 8, 0)
+        layout.addWidget(self.emailLine, 8, 1)
+        layout.addWidget(self.emailwarning, 8, 2)
+        layout.addWidget(self.dateLabel, 9, 0)
+        layout.addWidget(self.dateLine, 9, 1)
+        layout.addWidget(self.datewarning, 9, 2)
+        layout.addWidget(self.securityLabel, 10, 0)
+        layout.addWidget(self.securityLine, 10, 1)
+        layout.addWidget(self.submit, 11, 0, 1, 3)
 
     def get_first_name(self):
         try:
@@ -229,10 +284,84 @@ class SignupLoginMenu():
         except ValueError as e:
             error=str(e)
             self.nationalIDwarning.setText(error)
+    def get_phone_number(self):
+        try:
+            self.phoneNumberLineText=self.phoneNumberLine.text()
+            self.user.get_phone_number(self.phoneNumberLineText)
+            print(self.phoneNumberLineText)
+            if self.phonenumberwarning.text()!=' ':
+                self.phonenumberwarning.setText(' ')
+        except ValueError as e:
+            error=str(e)
+            self.phonenumberwarning.setText(error)
+    def get_user_name(self):
+        try:
+            self.userNameLineText=self.userNameLine.text()
+            self.user.get_username(self.userNameLineText)
+            print(self.userNameLineText)
+            if self.usernamewarning.text!=' ':
+                self.usernamewarning.setText(' ')
+        except ValueError as e:
+            error=str(e)
+            self.usernamewarning.setText(error)
+    def get_password(self):
+        try:
+            self.passwordLineText=self.passwordLine.text()
+            self.user.get_password(self.passwordLineText)
+            print(self.passwordLineText)
+            if self.passwordwarning.text!=' ':
+                self.passwordwarning.setText(' ')
+        except ValueError as e:
+            error=str(e)
+            self.passwordwarning.setText(error)
+    def check_repeated_password(self):
+        try:
+            self.repeatedpasswordLineText=self.repeatedpasswordLine.text()
+            passwordIsSet=self.user.check_repeated_password(self.repeatedpasswordLineText)
+            if self.repeatedpasswordwarning.text!=' ':
+                self.repeatedpasswordwarning.setText(' ')
+        except ValueError as e:
+            error=str(e)
+            self.repeatedpasswordwarning.setText(error)
+    def get_city(self):
+        self.user.get_city(self.cityCombobox.currentText())
+        print(self.user.city)
+    def get_email(self):
+        try:
+            self.emailLineText=self.emailLine.text()
+            self.user.get_email(self.emailLineText)
+            print(self.emailLineText)
+            if self.emailwarning.text!=' ':
+                self.emailwarning.setText(' ')
+        except ValueError as e:
+            error=str(e)
+            self.emailwarning.setText(error)
+    def get_birth_date(self):
+        try:
+            self.dateLineText=str(self.dateLine.text())
+            self.user.get_birth_date(self.dateLineText)
+            print(self.dateLineText)
+            if self.datewarning.text!=' ':
+                self.datewarning.setText(' ')
+        except ValueError as e:
+            error=str(e)
+            self.datewarning.setText(error)
+    def get_security_questions_answer(self):
+        self.securityLineText=self.securityLine.text()
+        self.user.get_security_questions_answer(self.securityLineText)
+        print(self.securityLineText)
     def submit_button(self):
         self.get_first_name()
         self.get_last_name()
         self.get_code_meli()
+        self.get_phone_number()
+        self.get_user_name()
+        self.get_password()
+        self.check_repeated_password()
+        self.get_city()
+        self.get_email()
+        self.get_birth_date()
+        self.get_security_questions_answer()
     def login(self):
         self.welcominglabel.hide()
         self.signupButton.hide()
