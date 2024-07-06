@@ -50,9 +50,13 @@ class User:
         elif bool(re.search('^09.',phoneNumber))==False:
             raise ValueError('[red]phone number must begin with 09.')
     #گرفتن یوزرنیم از کاربر  که می تواند به هر شکل دلخواه باشد.
-    def get_username(self,userName):
-        #will check if the username is not in the database when the database is initialized
-        self.userName=userName
+    def get_username(self,userName,database):
+        database.cursor.execute("SELECT user_name FROM users WHERE user_name=?",(userName,))
+        result=database.cursor.fetchone()
+        if result:
+            raise ValueError("This user name already exists")
+        else:
+            self.userName=userName
     #گرفتن پسورد در صورتی که شرایط دلخواه مسئله را رعایت کند
     def get_password(self,password):
         if len(password)>=6 and len(re.findall('[a-z]',password))>=1 and len(re.findall('[A-Z]',password))>=1 and len(re.findall("[!#$%&'()*+,-./:;<=>?@[\]^_`{|}~]",password))>=1 and len(re.findall('[0-9]',password))>=1:
@@ -77,11 +81,16 @@ class User:
     def get_city(self,city):
         self.city=city
     # بررسی معتبر بودن ایمیل و گرفتن از کاربر
-    def get_email(self,email):
-        if bool(re.findall(r'[A-Za-z0-9]+@(gmail|yahoo)\.com',email))==True:
-            self.email=email
+    def get_email(self,email,database):
+        database.cursor.execute("SELECT email FROM users WHERE email=?",(email,))
+        result=database.cursor.fetchone()
+        if result:
+            raise ValueError("This email already exists")
         else:
-            raise ValueError('Invalid email')
+            if bool(re.findall(r'[A-Za-z0-9]+@(gmail|yahoo)\.com',email))==True:
+                self.email=email
+            else:
+                raise ValueError('Invalid email')
     def get_birth_date(self,birthDate):
         if bool(re.findall('[1-2][0-9][0-9][0-9]/[0-1][0-9]/[0-3][0-9]',birthDate))==True:
             year=birthDate[0:4]
@@ -143,6 +152,7 @@ class SignupLoginMenu():
         self.signinButton= QPushButton('Log in',self.window)
         self.signinButton.setGeometry(300,350,200,50)
         self.signinButton.clicked.connect(self.login)
+    #functions for signup
         self.signinButton.show()
     def signup(self):
         #hiding buttons and the label from the very beginning menu
@@ -303,7 +313,7 @@ class SignupLoginMenu():
     def get_user_name(self):
         try:
             self.userNameLineText=self.userNameLine.text()
-            self.user.get_username(self.userNameLineText)
+            self.user.get_username(self.userNameLineText,self.window.db)
             if self.usernamewarning.text!=' ':
                 self.usernamewarning.setText(' ')
         except ValueError as e:
@@ -332,7 +342,7 @@ class SignupLoginMenu():
     def get_email(self):
         try:
             self.emailLineText=self.emailLine.text()
-            self.user.get_email(self.emailLineText)
+            self.user.get_email(self.emailLineText,self.window.db)
             if self.emailwarning.text!=' ':
                 self.emailwarning.setText(' ')
         except ValueError as e:
@@ -374,6 +384,7 @@ class SignupLoginMenu():
                         widget=item.widget()
                         if widget:
                             widget.setVisible(False)
+    #functions for login
     def login(self):
         self.welcominglabel.hide()
         self.signupButton.hide()
