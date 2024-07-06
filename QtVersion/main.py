@@ -1,4 +1,5 @@
 from PyQt6.QtWidgets import QApplication, QMainWindow, QPushButton, QLabel, QLineEdit, QGridLayout, QWidget, QComboBox
+from PyQt6.QtCore import Qt
 import sqlite3
 import sys
 import re
@@ -360,6 +361,22 @@ class SignupLoginMenu():
     def get_security_questions_answer(self):
         self.securityLineText=self.securityLine.text()
         self.user.get_security_questions_answer(self.securityLineText)
+    def clear_layout(self,layout):
+        for row in range(layout.rowCount()):
+            for column in range(layout.columnCount()):
+                item=layout.itemAtPosition(row,column)
+                if item:
+                    widget=item.widget()
+                    if widget:
+                        widget.setVisible(False)
+    def return_layout(self,layout):
+        for row in range(layout.rowCount()):
+            for column in range(layout.columnCount()):
+                item=layout.itemAtPosition(row,column)
+                if item:
+                    widget=item.widget()
+                    if widget:
+                        widget.setVisible(False)
     def submit_button(self):
         self.valid=True
         self.get_first_name()
@@ -377,18 +394,84 @@ class SignupLoginMenu():
             self.valid = False
         if self.valid:
             self.user.save_database(self.window.db)
-            for row in range(self.layout.rowCount()):
-                for column in range(self.layout.columnCount()):
-                    item=self.layout.itemAtPosition(row,column)
-                    if item:
-                        widget=item.widget()
-                        if widget:
-                            widget.setVisible(False)
+            self.clear_layout(self.layout)
     #functions for login
     def login(self):
         self.welcominglabel.hide()
         self.signupButton.hide()
         self.signinButton.hide()
+        #variables for user name
+        self.loginlayout=QGridLayout(self.window.centralWidget())
+        self.userNameLoginLabel=QLabel('enter your username: ',self.window)
+        self.userNameLoginLine=QLineEdit(self.window)
+        #variables for password
+        self.passwordLoginLabel=QLabel('enter your password: ',self.window)
+        self.passwordLoginLine=QLineEdit(self.window)
+        #submit button
+        self.Loginsubmit=QPushButton('Submit',self.window)
+        self.Loginsubmit.clicked.connect(self.submit_login)
+        #warning if the username or password was wrong
+        self.Loginwarning=QLabel(' ',self.window)
+        #variables for forget password
+        self.forgetpassword=QLabel('forgot password',self.window)
+        self.forgetpassword.mousePressEvent=self.forget_password
+        #layout
+        self.loginlayout.addWidget(self.userNameLoginLabel, 0, 0)
+        self.loginlayout.addWidget(self.userNameLoginLine, 0, 1)
+        self.loginlayout.addWidget(self.passwordLoginLabel, 1, 0,1,1)
+        self.loginlayout.addWidget(self.passwordLoginLine, 1, 1,1,1)
+        self.loginlayout.addWidget(self.Loginwarning,3,1,1,1)
+        self.loginlayout.addWidget(self.Loginsubmit,2,1)
+        self.loginlayout.addWidget(self.forgetpassword,2,0)
+        self.loginlayout.setAlignment(Qt.AlignmentFlag.AlignCenter)
+    def check_user_and_pass(self):
+        self.window.db.cursor.execute("SELECT user_name,password FROM users WHERE user_name=? AND password=?",(self.userNameLoginLine.text(),self.passwordLoginLine.text()))
+        result=self.window.db.cursor.fetchone()
+        if result:
+            self.clear_layout(self.loginlayout)
+        else:
+            self.Loginwarning.setText('username or password is wrong')
+    def submit_login(self):
+        self.check_user_and_pass()
+    def forget_password(self, event):
+        self.clear_layout(self.loginlayout)
+        self.userEmailLabel = QLabel('Enter your username or email:', self.window)
+        self.userEmailLine = QLineEdit(self.window)
+        self.forgetwarning = QLabel(' ', self.window)
+        self.forgetsubmit = QPushButton('Submit', self.window)
+        self.forgetsubmit.clicked.connect(self.check_data)
+        self.loginlayout.addWidget(self.userEmailLabel, 0, 0)
+        self.loginlayout.addWidget(self.userEmailLine, 0, 1)
+        self.loginlayout.addWidget(self.forgetsubmit, 1, 1, 1, 1)
+        self.loginlayout.addWidget(self.forgetwarning, 2, 1, 1, 1)
+    def check_data(self):
+        self.window.db.cursor.execute("SELECT user_name,email FROM users WHERE user_name=? OR email=?",(self.userEmailLine.text(),self.userEmailLine.text()))
+        result=self.window.db.cursor.fetchone()
+        if result:
+            self.forgetwarning.setText(' ')
+            self.forgetsubmit.clicked.disconnect()
+            self.questionLabel=QLabel('What is your favorite Car Brand? ',self.window)
+            self.questionLine=QLineEdit(self.window)
+            self.userEmailLabel.setVisible(False)
+            self.userEmailLine.setVisible(False)
+            self.forgetsubmit.setVisible(False)
+            self.loginlayout.addWidget(self.questionLabel,0,0)
+            self.loginlayout.addWidget(self.questionLine,0,1)
+            self.forgetsubmit = QPushButton('Submit', self.window) 
+            self.forgetsubmit.clicked.connect(self.check_security)
+            self.loginlayout.addWidget(self.forgetsubmit,1,1)
+        else:
+            self.forgetwarning.setText('this username/email does not exist')
+    def check_security(self):
+        self.window.db.cursor.execute("SELECT security_q_answer FROM users WHERE security_q_answer=? ",(self.questionLine.text(),))
+        answer=self.window.db.cursor.fetchone()
+        if answer:
+                self.window.db.cursor.execute("SELECT password FROM users WHERE user_name=? OR email=?",(self.userEmailLine.text(),self.userEmailLine.text()))
+                password=self.window.db.cursor.fetchone()
+                self.forgetwarning.setText(f'your password is: {password[0]}')
+        else:
+                    self.forgetwarning.setText('your security answer was wrong.')
+
 
 if __name__=='__main__':
     window = MyWindow()
