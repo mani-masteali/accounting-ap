@@ -1,4 +1,5 @@
-from PyQt6.QtWidgets import QApplication, QMainWindow, QPushButton, QLabel, QLineEdit, QGridLayout, QWidget, QComboBox, QDateEdit
+from PyQt6.QtWidgets import QApplication, QMainWindow, QPushButton, QLabel, QLineEdit, QGridLayout, QWidget, QComboBox
+import sqlite3
 import sys
 import re
 from PyQt6.QtGui import QIcon
@@ -116,8 +117,16 @@ class MyWindow(QMainWindow):
         self.showMaximized()
         central_widget = QWidget(self)
         self.setCentralWidget(central_widget)
-        self._signupmenu=SignupLoginMenu(self)
+        self._signupLoginMenu=SignupLoginMenu(self)
 
+'''class DataBase():
+    def __init__(self):
+        self.db = sqlite3.connect("ElmosBalance.db")
+        self.cursor = self.db.cursor()
+        self.create_data_base()
+    def create_data_base(self):
+        self.cursor.execute("CREATE TABLE IF NOT EXISTS users (first_name TEXT, last_name TEXT, national_id TEXT, phone_number TEXT, user_name TEXT PRIMARY KEY, password TEXT, city TEXT, email TEXT, birth_date TEXT, security_q_answer TEXT)")
+'''
 class SignupLoginMenu():
     def __init__(self,window:MyWindow):
         self.window=window
@@ -140,7 +149,8 @@ class SignupLoginMenu():
         self.signupButton.hide()
         self.signinButton.hide()
         self.user=User()
-        layout=QGridLayout(self.window.centralWidget())
+        self.correct_values=0
+        self.layout=QGridLayout(self.window.centralWidget())
         #variables for first name
         self.firstNameLabel=QLabel('enter your first name: ',self.window)
         self.firstNameLine=QLineEdit(self.window)
@@ -221,44 +231,44 @@ class SignupLoginMenu():
         self.submit=QPushButton('Submit',self.window)
         self.submit.clicked.connect(self.submit_button)
         #show and set layout
-        layout.addWidget(self.firstNameLabel, 0, 0)
-        layout.addWidget(self.firstNameLine, 0, 1)
-        layout.addWidget(self.firstnamewarning, 0, 2)
-        layout.addWidget(self.lastNameLabel, 1, 0)
-        layout.addWidget(self.lastNameLine, 1, 1)
-        layout.addWidget(self.lastnamewarning, 1, 2)
-        layout.addWidget(self.nationalIDLabel, 2, 0)
-        layout.addWidget(self.nationalIDLine, 2, 1)
-        layout.addWidget(self.nationalIDwarning, 2, 2)
-        layout.addWidget(self.phoneNumberLabel, 3, 0)
-        layout.addWidget(self.phoneNumberLine, 3, 1)
-        layout.addWidget(self.phonenumberwarning,3,2)
-        layout.addWidget(self.userNameLabel, 4, 0)
-        layout.addWidget(self.userNameLine, 4, 1)
-        layout.addWidget(self.usernamewarning, 4, 2)
-        layout.addWidget(self.passwordLabel, 5, 0)
-        layout.addWidget(self.passwordLine, 5, 1)
-        layout.addWidget(self.passwordwarning, 5, 2)
-        layout.addWidget(self.repeatedpasswordLabel, 6, 0)
-        layout.addWidget(self.repeatedpasswordLine, 6, 1)
-        layout.addWidget(self.repeatedpasswordwarning, 6, 2)
-        layout.addWidget(self.cityLabel, 7, 0)
-        layout.addWidget(self.cityCombobox, 7, 1)
-        layout.addWidget(self.emailLabel, 8, 0)
-        layout.addWidget(self.emailLine, 8, 1)
-        layout.addWidget(self.emailwarning, 8, 2)
-        layout.addWidget(self.dateLabel, 9, 0)
-        layout.addWidget(self.dateLine, 9, 1)
-        layout.addWidget(self.datewarning, 9, 2)
-        layout.addWidget(self.securityLabel, 10, 0)
-        layout.addWidget(self.securityLine, 10, 1)
-        layout.addWidget(self.submit, 11, 0, 1, 3)
+        self.layout.addWidget(self.firstNameLabel, 0, 0)
+        self.layout.addWidget(self.firstNameLine, 0, 1)
+        self.layout.addWidget(self.firstnamewarning, 0, 2)
+        self.layout.addWidget(self.lastNameLabel, 1, 0)
+        self.layout.addWidget(self.lastNameLine, 1, 1)
+        self.layout.addWidget(self.lastnamewarning, 1, 2)
+        self.layout.addWidget(self.nationalIDLabel, 2, 0)
+        self.layout.addWidget(self.nationalIDLine, 2, 1)
+        self.layout.addWidget(self.nationalIDwarning, 2, 2)
+        self.layout.addWidget(self.phoneNumberLabel, 3, 0)
+        self.layout.addWidget(self.phoneNumberLine, 3, 1)
+        self.layout.addWidget(self.phonenumberwarning,3,2)
+        self.layout.addWidget(self.userNameLabel, 4, 0)
+        self.layout.addWidget(self.userNameLine, 4, 1)
+        self.layout.addWidget(self.usernamewarning, 4, 2)
+        self.layout.addWidget(self.passwordLabel, 5, 0)
+        self.layout.addWidget(self.passwordLine, 5, 1)
+        self.layout.addWidget(self.passwordwarning, 5, 2)
+        self.layout.addWidget(self.repeatedpasswordLabel, 6, 0)
+        self.layout.addWidget(self.repeatedpasswordLine, 6, 1)
+        self.layout.addWidget(self.repeatedpasswordwarning, 6, 2)
+        self.layout.addWidget(self.cityLabel, 7, 0)
+        self.layout.addWidget(self.cityCombobox, 7, 1)
+        self.layout.addWidget(self.emailLabel, 8, 0)
+        self.layout.addWidget(self.emailLine, 8, 1)
+        self.layout.addWidget(self.emailwarning, 8, 2)
+        self.layout.addWidget(self.dateLabel, 9, 0)
+        self.layout.addWidget(self.dateLine, 9, 1)
+        self.layout.addWidget(self.datewarning, 9, 2)
+        self.layout.addWidget(self.securityLabel, 10, 0)
+        self.layout.addWidget(self.securityLine, 10, 1)
+        self.layout.addWidget(self.submit, 11, 0, 1, 3)
 
     def get_first_name(self):
         try:
             self.firstNameLineText=self.firstNameLine.text()
             self.user.get_first_name(self.firstNameLineText)
-            print(self.firstNameLineText)
+            self.correct_values+=1
             if self.firstnamewarning.text()!=' ':
                 self.firstnamewarning.setText(' ')
         except ValueError as e:
@@ -268,7 +278,7 @@ class SignupLoginMenu():
         try:
             self.lastNameLineText=self.lastNameLine.text()
             self.user.get_last_name(self.lastNameLineText)
-            print(self.lastNameLineText)
+            self.correct_values+=1
             if self.lastnamewarning.text()!=' ':
                 self.lastnamewarning.setText(' ')
         except ValueError as e:
@@ -278,7 +288,7 @@ class SignupLoginMenu():
         try:
             self.nationalIDLineText=self.nationalIDLine.text()
             self.user.get_code_meli(self.nationalIDLineText)
-            print(self.nationalIDLineText)
+            self.correct_values+=1
             if self.nationalIDwarning.text()!=' ':
                 self.nationalIDwarning.setText(' ')
         except ValueError as e:
@@ -288,7 +298,7 @@ class SignupLoginMenu():
         try:
             self.phoneNumberLineText=self.phoneNumberLine.text()
             self.user.get_phone_number(self.phoneNumberLineText)
-            print(self.phoneNumberLineText)
+            self.correct_values+=1
             if self.phonenumberwarning.text()!=' ':
                 self.phonenumberwarning.setText(' ')
         except ValueError as e:
@@ -298,7 +308,7 @@ class SignupLoginMenu():
         try:
             self.userNameLineText=self.userNameLine.text()
             self.user.get_username(self.userNameLineText)
-            print(self.userNameLineText)
+            self.correct_values+=1
             if self.usernamewarning.text!=' ':
                 self.usernamewarning.setText(' ')
         except ValueError as e:
@@ -308,7 +318,7 @@ class SignupLoginMenu():
         try:
             self.passwordLineText=self.passwordLine.text()
             self.user.get_password(self.passwordLineText)
-            print(self.passwordLineText)
+            self.correct_values+=1
             if self.passwordwarning.text!=' ':
                 self.passwordwarning.setText(' ')
         except ValueError as e:
@@ -318,6 +328,7 @@ class SignupLoginMenu():
         try:
             self.repeatedpasswordLineText=self.repeatedpasswordLine.text()
             passwordIsSet=self.user.check_repeated_password(self.repeatedpasswordLineText)
+            self.correct_values+=1
             if self.repeatedpasswordwarning.text!=' ':
                 self.repeatedpasswordwarning.setText(' ')
         except ValueError as e:
@@ -325,12 +336,12 @@ class SignupLoginMenu():
             self.repeatedpasswordwarning.setText(error)
     def get_city(self):
         self.user.get_city(self.cityCombobox.currentText())
-        print(self.user.city)
+        self.correct_values+=1
     def get_email(self):
         try:
             self.emailLineText=self.emailLine.text()
             self.user.get_email(self.emailLineText)
-            print(self.emailLineText)
+            self.correct_values+=1
             if self.emailwarning.text!=' ':
                 self.emailwarning.setText(' ')
         except ValueError as e:
@@ -340,7 +351,7 @@ class SignupLoginMenu():
         try:
             self.dateLineText=str(self.dateLine.text())
             self.user.get_birth_date(self.dateLineText)
-            print(self.dateLineText)
+            self.correct_values+=1
             if self.datewarning.text!=' ':
                 self.datewarning.setText(' ')
         except ValueError as e:
@@ -349,7 +360,7 @@ class SignupLoginMenu():
     def get_security_questions_answer(self):
         self.securityLineText=self.securityLine.text()
         self.user.get_security_questions_answer(self.securityLineText)
-        print(self.securityLineText)
+        self.correct_values+=1
     def submit_button(self):
         self.get_first_name()
         self.get_last_name()
@@ -362,12 +373,21 @@ class SignupLoginMenu():
         self.get_email()
         self.get_birth_date()
         self.get_security_questions_answer()
+        if self.correct_values==11:
+            for row in range(self.layout.rowCount()):
+                for column in range(self.layout.columnCount()):
+                    item=self.layout.itemAtPosition(row,column)
+                    if item:
+                        widget=item.widget()
+                        if widget:
+                            widget.setVisible(False)
     def login(self):
         self.welcominglabel.hide()
         self.signupButton.hide()
         self.signinButton.hide()
 
 if __name__=='__main__':
+    #db=DataBase()
     window = MyWindow()
     window.show()
     sys.exit(app.exec())
