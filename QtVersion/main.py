@@ -78,7 +78,6 @@ class User:
         self.city=city
     # بررسی معتبر بودن ایمیل و گرفتن از کاربر
     def get_email(self,email):
-        #will check if the email exists in the database later
         if bool(re.findall(r'[A-Za-z0-9]+@(gmail|yahoo)\.com',email))==True:
             self.email=email
         else:
@@ -104,9 +103,9 @@ class User:
     def get_security_questions_answer(self,answer):
         self.securityQAnswer=answer
     #اطلاعات کاربر در یک دیتابیس ذخیره می شود
-    def save_database(self):
-        #will be written as soon as the database is ready
-        pass
+    def save_database(self,database):
+        database.cursor.execute("INSERT INTO users(first_name, last_name, national_id, phone_number, user_name, password, city, email, birth_date, security_q_answer) VALUES(?,?,?,?,?,?,?,?,?,?)",(self.firstName,self.lastName,self.nationalId,self.phoneNumber,self.userName,self.password,self.city,self.email, self.birthDate,self.securityQAnswer))
+        database.commit()
 
 class MyWindow(QMainWindow):
     def __init__(self):
@@ -115,6 +114,7 @@ class MyWindow(QMainWindow):
         self.setWindowTitle("ElmosBalance")
         self.setFixedSize(800,600)
         self.showMaximized()
+        self.db=DataBase()
         central_widget = QWidget(self)
         self.setCentralWidget(central_widget)
         self._signupLoginMenu=SignupLoginMenu(self)
@@ -124,6 +124,8 @@ class DataBase():
         self.db = sqlite3.connect("ElmosBalance.db")
         self.cursor = self.db.cursor()
         self.create_data_base()
+    def commit(self):
+        self.db.commit()
     def create_data_base(self):
         self.cursor.execute("CREATE TABLE IF NOT EXISTS users (first_name TEXT, last_name TEXT, national_id TEXT, phone_number TEXT, user_name TEXT PRIMARY KEY, password TEXT, city TEXT, email TEXT, birth_date TEXT, security_q_answer TEXT)")
 class SignupLoginMenu():
@@ -148,7 +150,6 @@ class SignupLoginMenu():
         self.signupButton.hide()
         self.signinButton.hide()
         self.user=User()
-        self.correct_values=0
         self.layout=QGridLayout(self.window.centralWidget())
         #variables for first name
         self.firstNameLabel=QLabel('enter your first name: ',self.window)
@@ -267,7 +268,6 @@ class SignupLoginMenu():
         try:
             self.firstNameLineText=self.firstNameLine.text()
             self.user.get_first_name(self.firstNameLineText)
-            self.correct_values+=1
             if self.firstnamewarning.text()!=' ':
                 self.firstnamewarning.setText(' ')
         except ValueError as e:
@@ -277,7 +277,6 @@ class SignupLoginMenu():
         try:
             self.lastNameLineText=self.lastNameLine.text()
             self.user.get_last_name(self.lastNameLineText)
-            self.correct_values+=1
             if self.lastnamewarning.text()!=' ':
                 self.lastnamewarning.setText(' ')
         except ValueError as e:
@@ -287,7 +286,6 @@ class SignupLoginMenu():
         try:
             self.nationalIDLineText=self.nationalIDLine.text()
             self.user.get_code_meli(self.nationalIDLineText)
-            self.correct_values+=1
             if self.nationalIDwarning.text()!=' ':
                 self.nationalIDwarning.setText(' ')
         except ValueError as e:
@@ -297,7 +295,6 @@ class SignupLoginMenu():
         try:
             self.phoneNumberLineText=self.phoneNumberLine.text()
             self.user.get_phone_number(self.phoneNumberLineText)
-            self.correct_values+=1
             if self.phonenumberwarning.text()!=' ':
                 self.phonenumberwarning.setText(' ')
         except ValueError as e:
@@ -307,7 +304,6 @@ class SignupLoginMenu():
         try:
             self.userNameLineText=self.userNameLine.text()
             self.user.get_username(self.userNameLineText)
-            self.correct_values+=1
             if self.usernamewarning.text!=' ':
                 self.usernamewarning.setText(' ')
         except ValueError as e:
@@ -317,7 +313,6 @@ class SignupLoginMenu():
         try:
             self.passwordLineText=self.passwordLine.text()
             self.user.get_password(self.passwordLineText)
-            self.correct_values+=1
             if self.passwordwarning.text!=' ':
                 self.passwordwarning.setText(' ')
         except ValueError as e:
@@ -327,7 +322,6 @@ class SignupLoginMenu():
         try:
             self.repeatedpasswordLineText=self.repeatedpasswordLine.text()
             passwordIsSet=self.user.check_repeated_password(self.repeatedpasswordLineText)
-            self.correct_values+=1
             if self.repeatedpasswordwarning.text!=' ':
                 self.repeatedpasswordwarning.setText(' ')
         except ValueError as e:
@@ -335,12 +329,10 @@ class SignupLoginMenu():
             self.repeatedpasswordwarning.setText(error)
     def get_city(self):
         self.user.get_city(self.cityCombobox.currentText())
-        self.correct_values+=1
     def get_email(self):
         try:
             self.emailLineText=self.emailLine.text()
             self.user.get_email(self.emailLineText)
-            self.correct_values+=1
             if self.emailwarning.text!=' ':
                 self.emailwarning.setText(' ')
         except ValueError as e:
@@ -350,7 +342,6 @@ class SignupLoginMenu():
         try:
             self.dateLineText=str(self.dateLine.text())
             self.user.get_birth_date(self.dateLineText)
-            self.correct_values+=1
             if self.datewarning.text!=' ':
                 self.datewarning.setText(' ')
         except ValueError as e:
@@ -359,8 +350,8 @@ class SignupLoginMenu():
     def get_security_questions_answer(self):
         self.securityLineText=self.securityLine.text()
         self.user.get_security_questions_answer(self.securityLineText)
-        self.correct_values+=1
     def submit_button(self):
+        self.valid=True
         self.get_first_name()
         self.get_last_name()
         self.get_code_meli()
@@ -372,7 +363,10 @@ class SignupLoginMenu():
         self.get_email()
         self.get_birth_date()
         self.get_security_questions_answer()
-        if self.correct_values==11:
+        if self.firstnamewarning.text() != ' ' or self.lastnamewarning.text() != ' ' or self.nationalIDwarning.text() != ' ' or self.phonenumberwarning.text() != ' ' or self.usernamewarning.text() != ' ' or self.passwordwarning.text() != ' ' or self.repeatedpasswordwarning.text() != ' ' or self.emailwarning.text() != ' ' or self.datewarning.text() != ' ':
+            self.valid = False
+        if self.valid:
+            self.user.save_database(self.window.db)
             for row in range(self.layout.rowCount()):
                 for column in range(self.layout.columnCount()):
                     item=self.layout.itemAtPosition(row,column)
@@ -386,7 +380,6 @@ class SignupLoginMenu():
         self.signinButton.hide()
 
 if __name__=='__main__':
-    db=DataBase()
     window = MyWindow()
     window.show()
     sys.exit(app.exec())
