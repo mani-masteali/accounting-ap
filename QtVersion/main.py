@@ -119,14 +119,13 @@ class MyWindow(QMainWindow):
         self.setCentralWidget(central_widget)
         self._signupLoginMenu=SignupLoginMenu(self)
 
-'''class DataBase():
+class DataBase():
     def __init__(self):
         self.db = sqlite3.connect("ElmosBalance.db")
         self.cursor = self.db.cursor()
         self.create_data_base()
     def create_data_base(self):
         self.cursor.execute("CREATE TABLE IF NOT EXISTS users (first_name TEXT, last_name TEXT, national_id TEXT, phone_number TEXT, user_name TEXT PRIMARY KEY, password TEXT, city TEXT, email TEXT, birth_date TEXT, security_q_answer TEXT)")
-'''
 class SignupLoginMenu():
     def __init__(self,window:MyWindow):
         self.window=window
@@ -387,7 +386,7 @@ class SignupLoginMenu():
         self.signinButton.hide()
 
 if __name__=='__main__':
-    #db=DataBase()
+    db=DataBase()
     window = MyWindow()
     window.show()
     sys.exit(app.exec())
