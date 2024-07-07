@@ -576,7 +576,6 @@ class CategoryMenu:
 
     def init_ui(self):
         self.window.signupLoginMenu.mainMenu.hide_menu()
-        
         central_widget = QWidget(self.window)
         self.window.setCentralWidget(central_widget)
         self.layout = QGridLayout(central_widget)
@@ -614,12 +613,6 @@ class CategoryMenu:
             self.categoryNameWarning.setText('Category added successfully')
         except ValueError as e:
             self.categoryNameWarning.setText(str(e))
-    
-    def clear_layout(self, layout):
-        for row in range(layout.rowCount()):
-            for column in range(layout.columnCount()):
-                item = layout.itemAtPosition(row, column)
-                if item:
     def back(self):
         self.categoryNameLabel.setVisible(False)
         self.categoryNameLineEdit.setVisible(False)
@@ -647,7 +640,7 @@ class MainMenu():
 
     def show_categories(self):
         self.categoryMenu = CategoryMenu(self.window)
-       
+        pass
 
     def show_search(self):
         # Implement action for Search button
