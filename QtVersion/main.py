@@ -1,5 +1,6 @@
 from PyQt6.QtWidgets import QApplication, QMainWindow, QPushButton, QLabel, QLineEdit, QGridLayout, QWidget, QComboBox
 from PyQt6.QtCore import Qt
+from datetime import datetime
 import sqlite3
 import sys
 import re
@@ -140,6 +141,241 @@ class User:
                                 (self.firstName, self.lastName, self.nationalId, self.phoneNumber, self.userName, self.password, self.city, self.email, self.birthDate, self.securityQAnswer))
         database.commit()
 
+
+class RegisterFine:
+    def __init__(self, db):
+        self.db = db
+
+    def register_income(self, amount, date, category, description):
+        self.validate_amount(amount)
+        self.validate_date(date)
+        self.validate_category(category)
+        self.validate_description(description)
+
+        cursor = self.db.cursor()
+        cursor.execute("INSERT INTO income_fine (amount, date, category, description) VALUES (?,?,?,?)",
+                       (amount, date, category, description))
+        self.db.commit()
+
+    def register_expense(self, amount, date, category, description):
+        self.validate_amount(amount)
+        self.validate_date(date)
+        self.validate_category(category)
+        self.validate_description(description)
+
+        cursor = self.db.cursor()
+        cursor.execute("INSERT INTO expense_fine (amount, date, category, description) VALUES (?,?,?,?)",
+                       (amount, date, category, description))
+        self.db.commit()
+
+    def validate_amount(self, amount):
+        if not amount:
+            raise ValueError("Amount cannot be empty")
+        if not isinstance(amount, (int, float)):
+            raise ValueError("Amount must be a number")
+        if amount <= 0:
+            raise ValueError("Amount must be positive")
+
+    def validate_date(self, date):
+        if not date:
+            raise ValueError("Date cannot be empty")
+        try:
+            datetime.strptime(date, '%Y/%m/%d')
+        except ValueError:
+            raise ValueError("Invalid date format. Must be yyyy/mm/dd")
+
+    def validate_category(self, category):
+        if not category:
+            raise ValueError("Category cannot be empty")
+
+    def validate_description(self, description):
+        if description and len(description) > 100:
+            raise ValueError("Description must be 100 characters or less")
+
+    def create_tables(self):
+        cursor = self.db.cursor()
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS income_fine (
+                id INTEGER PRIMARY KEY,
+                amount REAL,
+                date TEXT,
+                category TEXT,
+                description TEXT
+            )
+        """)
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS expense_fine (
+                id INTEGER PRIMARY KEY,
+                amount REAL,
+                date TEXT,
+                category TEXT,
+                description TEXT
+            )
+        """)
+        self.db.commit()
+
+class RegisterIncomeMenu:
+    def __init__(self, window: MyWindow):
+        self.window = window
+        self.init_ui()
+
+    def init_ui(self):
+        self.window.signupLoginMenu.mainMenu.hide_menu()
+        central_widget = QWidget(self.window)
+        self.window.setCentralWidget(central_widget)
+        self.layout = QGridLayout(central_widget)
+
+        self.amountLabel = QLabel('Enter amount: ', self.window)
+        self.amountLineEdit = QLineEdit(self.window)
+        self.amountWarning = QLabel(' ', self.window)
+
+        self.dateLabel = QLabel('Enter date (yyyy/mm/dd): ', self.window)
+        self.dateLineEdit = QLineEdit(self.window)
+        self.dateWarning = QLabel(' ', self.window)
+
+        self.categoryLabel = QLabel('Select category: ', self.window)
+        self.categoryComboBox = QComboBox(self.window)
+        self.load_income_categories()
+
+        self.descriptionLabel = QLabel('Enter description: ', self.window)
+        self.descriptionLineEdit = QLineEdit(self.window)
+        self.descriptionWarning = QLabel(' ', self.window)
+
+        self.submitButton = QPushButton('Submit', self.window)
+        self.submitButton.clicked.connect(self.submit_income)
+        self.backButton = QPushButton('Back', self.window)
+        self.backButton.clicked.connect(self.back)
+
+        self.layout.addWidget(self.amountLabel, 0, 0)
+        self.layout.addWidget(self.amountLineEdit, 0, 1)
+        self.layout.addWidget(self.amountWarning, 0, 2)
+        self.layout.addWidget(self.dateLabel, 1, 0)
+        self.layout.addWidget(self.dateLineEdit, 1, 1)
+        self.layout.addWidget(self.dateWarning, 1, 2)
+        self.layout.addWidget(self.categoryLabel, 2, 0)
+        self.layout.addWidget(self.categoryComboBox, 2, 1)
+        self.layout.addWidget(self.descriptionLabel, 3, 0)
+        self.layout.addWidget(self.descriptionLineEdit, 3, 1)
+        self.layout.addWidget(self.descriptionWarning, 3, 2)
+        self.layout.addWidget(self.submitButton, 4, 0, 1, 3)
+        self.layout.addWidget(self.backButton, 5, 0, 1, 3)
+
+    def load_income_categories(self):
+        cursor = self.window.db.cursor()
+        cursor.execute("SELECT name FROM income_categories")
+        categories = [row[0] for row in cursor.fetchall()]
+        self.categoryComboBox.addItems(categories)
+
+    def submit_income(self):
+        amount = self.amountLineEdit.text()
+        date = self.dateLineEdit.text()
+        category = self.categoryComboBox.currentText()
+        description = self.descriptionLineEdit.text()
+
+        try:
+            register_fine = RegisterFine(self.window.db)
+            register_fine.register_income(float(amount), date, category, description)
+            self.descriptionWarning.setText('Income registered successfully')
+        except ValueError as e:
+            self.descriptionWarning.setText(str(e))
+
+    def back(self):
+        self.amountLabel.setVisible(False)
+        self.amountLineEdit.setVisible(False)
+        self.amountWarning.setVisible(False)
+        self.dateLabel.setVisible(False)
+        self.dateLineEdit.setVisible(False)
+        self.dateWarning.setVisible(False)
+        self.categoryLabel.setVisible(False)
+        self.categoryComboBox.setVisible(False)
+        self.descriptionLabel.setVisible(False)
+        self.descriptionLineEdit.setVisible(False)
+        self.descriptionWarning.setVisible(False)
+        self.submitButton.setVisible(False)
+        self.backButton.setVisible(False)
+        self.mainMenu = MainMenu(self.window)
+
+
+class RegisterExpenseMenu:
+    def __init__(self, window: MyWindow):
+        self.window = window
+        self.init_ui()
+
+    def init_ui(self):
+        self.window.signupLoginMenu.mainMenu.hide_menu()
+        central_widget = QWidget(self.window)
+        self.window.setCentralWidget(central_widget)
+        self.layout = QGridLayout(central_widget)
+
+        self.amountLabel = QLabel('Enter amount: ', self.window)
+        self.amountLineEdit = QLineEdit(self.window)
+        self.amountWarning = QLabel(' ', self.window)
+
+        self.dateLabel = QLabel('Enter date (yyyy/mm/dd): ', self.window)
+        self.dateLineEdit = QLineEdit(self.window)
+        self.dateWarning = QLabel(' ', self.window)
+
+        self.categoryLabel = QLabel('Select category: ', self.window)
+        self.categoryComboBox = QComboBox(self.window)
+        self.load_expense_categories()
+
+        self.descriptionLabel = QLabel('Enter description: ', self.window)
+        self.descriptionLineEdit = QLineEdit(self.window)
+        self.descriptionWarning = QLabel(' ', self.window)
+
+        self.submitButton = QPushButton('Submit', self.window)
+        self.submitButton.clicked.connect(self.submit_expense)
+        self.backButton = QPushButton('Back', self.window)
+        self.backButton.clicked.connect(self.back)
+
+        self.layout.addWidget(self.amountLabel, 0, 0)
+        self.layout.addWidget(self.amountLineEdit, 0, 1)
+        self.layout.addWidget(self.amountWarning, 0, 2)
+        self.layout.addWidget(self.dateLabel, 1, 0)
+        self.layout.addWidget(self.dateLineEdit, 1, 1)
+        self.layout.addWidget(self.dateWarning, 1, 2)
+        self.layout.addWidget(self.categoryLabel, 2, 0)
+        self.layout.addWidget(self.categoryComboBox, 2, 1)
+        self.layout.addWidget(self.descriptionLabel, 3, 0)
+        self.layout.addWidget(self.descriptionLineEdit, 3, 1)
+        self.layout.addWidget(self.descriptionWarning, 3, 2)
+        self.layout.addWidget(self.submitButton, 4, 0, 1, 3)
+        self.layout.addWidget(self.backButton, 5, 0, 1, 3)
+
+    def load_expense_categories(self):
+        cursor = self.window.db.cursor()
+        cursor.execute("SELECT name FROM expense_categories")
+        categories = [row[0] for row in cursor.fetchall()]
+        self.categoryComboBox.addItems(categories)
+
+    def submit_expense(self):
+        amount = self.amountLineEdit.text()
+        date = self.dateLineEdit.text()
+        category = self.categoryComboBox.currentText()
+        description = self.descriptionLineEdit.text()
+
+        try:
+            register_fine = RegisterFine(self.window.db)
+            register_fine.register_expense(float(amount), date, category, description)
+            self.descriptionWarning.setText('Expense registered successfully')
+        except ValueError as e:
+            self.descriptionWarning.setText(str(e))
+
+    def back(self):
+        self.amountLabel.setVisible(False)
+        self.amountLineEdit.setVisible(False)
+        self.amountWarning.setVisible(False)
+        self.dateLabel.setVisible(False)
+        self.dateLineEdit.setVisible(False)
+        self.dateWarning.setVisible(False)
+        self.categoryLabel.setVisible(False)
+        self.categoryComboBox.setVisible(False)
+        self.descriptionLabel.setVisible(False)
+        self.descriptionLineEdit.setVisible(False)
+        self.descriptionWarning.setVisible(False)
+        self.submitButton.setVisible(False)
+        self.backButton.setVisible(False)
+        self.mainMenu = MainMenu(self.window)
 
 class Category:
     def __init__(self, name):
@@ -601,7 +837,6 @@ class CategoryMenu:
         self.layout.addWidget(self.submitButton, 2, 0, 1, 3)
         self.layout.addWidget(self.backButton, 3, 0, 1, 3)
 
-
     def submit_category(self):
         category_type = self.categoryTypeComboBox.currentText().lower() + '_categories'
         category_name = self.categoryNameLineEdit.text()
@@ -613,6 +848,7 @@ class CategoryMenu:
             self.categoryNameWarning.setText('Category added successfully')
         except ValueError as e:
             self.categoryNameWarning.setText(str(e))
+
     def back(self):
         self.categoryNameLabel.setVisible(False)
         self.categoryNameLineEdit.setVisible(False)
@@ -622,8 +858,7 @@ class CategoryMenu:
         self.submitButton.setVisible(False)
         self.backButton.setVisible(False)
         self.mainMenu = MainMenu(self.window)
-        
-        
+
 
 class MainMenu():
     def __init__(self, window: MyWindow):
@@ -631,7 +866,7 @@ class MainMenu():
         self.show_main_menu()
 
     def register_income(self):
-        # Implement action for Register Income button
+        
         pass
 
     def register_expense(self):
@@ -639,6 +874,17 @@ class MainMenu():
         pass
 
     def show_categories(self):
+        self.welcominglabel.setVisible(False)
+        self.registerIncomeButton.setVisible(False)
+
+        self.registerExpenseButton.setVisible(False)
+
+        self.categoriesButton.setVisible(False)
+        self.searchButton.setVisible(False)
+        self.reportingButton.setVisible(False)
+        self.settingsButton.setVisible(False)
+        self.exitButton.setVisible(False)
+
         self.categoryMenu = CategoryMenu(self.window)
         pass
 
