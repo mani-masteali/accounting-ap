@@ -168,7 +168,7 @@ class MyWindow(QMainWindow):
         self.db = DataBase()
         central_widget = QWidget(self)
         self.setCentralWidget(central_widget)
-        self._signupLoginMenu = SignupLoginMenu(self)
+        self.signupLoginMenu = SignupLoginMenu(self)
 
 
 class DataBase:
@@ -188,6 +188,8 @@ class DataBase:
 class SignupLoginMenu():
     def __init__(self, window: MyWindow):
         self.window = window
+        self.singuping=False
+        self.logining=False
         self.login_signup_menu()
 
     def login_signup_menu(self):
@@ -459,6 +461,7 @@ class SignupLoginMenu():
         if self.firstnamewarning.text() != ' ' or self.lastnamewarning.text() != ' ' or self.nationalIDwarning.text() != ' ' or self.phonenumberwarning.text() != ' ' or self.usernamewarning.text() != ' ' or self.passwordwarning.text() != ' ' or self.repeatedpasswordwarning.text() != ' ' or self.emailwarning.text() != ' ' or self.datewarning.text() != ' ':
             self.valid = False
         if self.valid:
+            self.singuping=True
             self.user.save_database(self.window.db)
             self.clear_layout(self.layout)
             self.mainMenu = MainMenu(self.window)
@@ -499,6 +502,7 @@ class SignupLoginMenu():
             self.userNameLoginLine.text(), self.passwordLoginLine.text()))
         result = self.window.db.cursor.fetchone()
         if result:
+            self.logining=True
             self.clear_layout(self.loginlayout)
             self.mainMenu = MainMenu(self.window)
         else:
@@ -559,7 +563,10 @@ class CategoryMenu:
         self.init_ui()
 
     def init_ui(self):
-        self.layout = QGridLayout(self.window.centralWidget())
+        self.window.signupLoginMenu.mainMenu.hide_menu()
+        central_widget = QWidget(self.window)
+        self.window.setCentralWidget(central_widget)
+        self.layout = QGridLayout(central_widget)
         
         self.categoryTypeLabel = QLabel('Select category type: ', self.window)
         self.categoryTypeComboBox = QComboBox(self.window)
@@ -586,7 +593,7 @@ class CategoryMenu:
         
         try:
             category.validate_name()
-            category.save_to_database(self.window.db.db, category_type)
+            category.save_to_database(self.window.db.cursor, category_type)
             self.categoryNameWarning.setText('Category added successfully')
         except ValueError as e:
             self.categoryNameWarning.setText(str(e))
@@ -603,7 +610,7 @@ class MainMenu():
         pass
 
     def show_categories(self):
-        categoryMenu=CategoryMenu(self.window)
+        self.categoryMenu=CategoryMenu(self.window)
         pass
 
     def show_search(self):
@@ -668,6 +675,15 @@ class MainMenu():
     def exit_app(self):
         # Implement action for Exit button
         self.window.close()
+    def hide_menu(self):
+        self.welcominglabel.setVisible(False)
+        self.registerIncomeButton.setVisible(False)
+        self.registerExpenseButton.setVisible(False)
+        self.categoriesButton.setVisible(False)
+        self.searchButton.setVisible(False)
+        self.reportingButton.setVisible(False)
+        self.settingsButton.setVisible(False)
+        self.exitButton.setVisible(False)
 
 
 
