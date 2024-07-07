@@ -139,7 +139,25 @@ class User:
                                 (self.firstName, self.lastName, self.nationalId, self.phoneNumber, self.userName, self.password, self.city, self.email, self.birthDate, self.securityQAnswer))
         database.commit()
 
+class Category:
+    def __init__(self, name):
+        self.name = name
 
+    def validate_name(self):
+        if not self.name:
+            raise ValueError("Category name cannot be empty")
+        if len(self.name) > 15:
+            raise ValueError("Category name cannot be longer than 15 characters")
+        if not re.match("^[A-Za-z0-9]*$", self.name):
+            raise ValueError("Category name can only contain English letters and numbers")
+
+    def save_to_database(self, db, category_type):
+        cursor = db.cursor
+        cursor.execute(f"SELECT name FROM {category_type} WHERE name=?", (self.name,))
+        if cursor.fetchone():
+            raise ValueError("Category name already exists")
+        cursor.execute(f"INSERT INTO {category_type} (name) VALUES (?)", (self.name,))
+        db.commit()
 class MyWindow(QMainWindow):
     def __init__(self):
         super().__init__()
@@ -153,7 +171,7 @@ class MyWindow(QMainWindow):
         self._signupLoginMenu = SignupLoginMenu(self)
 
 
-class DataBase():
+class DataBase:
     def __init__(self):
         self.db = sqlite3.connect("ElmosBalance.db")
         self.cursor = self.db.cursor()
@@ -164,7 +182,8 @@ class DataBase():
 
     def create_data_base(self):
         self.cursor.execute("CREATE TABLE IF NOT EXISTS users (first_name TEXT, last_name TEXT, national_id TEXT, phone_number TEXT, user_name TEXT PRIMARY KEY, password TEXT, city TEXT, email TEXT, birth_date TEXT, security_q_answer TEXT)")
-
+        self.cursor.execute("CREATE TABLE IF NOT EXISTS income_categories (name TEXT PRIMARY KEY)")
+        self.cursor.execute("CREATE TABLE IF NOT EXISTS expense_categories (name TEXT PRIMARY KEY)")
 
 class SignupLoginMenu():
     def __init__(self, window: MyWindow):
@@ -534,7 +553,43 @@ class SignupLoginMenu():
         else:
             self.forgetwarning.setText('your security answer was wrong.')
 
+class CategoryMenu:
+    def __init__(self, window: MyWindow):
+        self.window = window
+        self.init_ui()
 
+    def init_ui(self):
+        self.layout = QGridLayout(self.window.centralWidget())
+        
+        self.categoryTypeLabel = QLabel('Select category type: ', self.window)
+        self.categoryTypeComboBox = QComboBox(self.window)
+        self.categoryTypeComboBox.addItems(['Income', 'Expense'])
+        
+        self.categoryNameLabel = QLabel('Enter category name: ', self.window)
+        self.categoryNameLineEdit = QLineEdit(self.window)
+        self.categoryNameWarning = QLabel(' ', self.window)
+        
+        self.submitButton = QPushButton('Submit', self.window)
+        self.submitButton.clicked.connect(self.submit_category)
+        
+        self.layout.addWidget(self.categoryTypeLabel, 0, 0)
+        self.layout.addWidget(self.categoryTypeComboBox, 0, 1)
+        self.layout.addWidget(self.categoryNameLabel, 1, 0)
+        self.layout.addWidget(self.categoryNameLineEdit, 1, 1)
+        self.layout.addWidget(self.categoryNameWarning, 1, 2)
+        self.layout.addWidget(self.submitButton, 2, 0, 1, 3)
+
+    def submit_category(self):
+        category_type = self.categoryTypeComboBox.currentText().lower() + '_categories'
+        category_name = self.categoryNameLineEdit.text()
+        category = Category(category_name)
+        
+        try:
+            category.validate_name()
+            category.save_to_database(self.window.db.db, category_type)
+            self.categoryNameWarning.setText('Category added successfully')
+        except ValueError as e:
+            self.categoryNameWarning.setText(str(e))
 class MainMenu():
     def __init__(self, window:MyWindow):
         self.window = window
@@ -548,7 +603,7 @@ class MainMenu():
         pass
 
     def show_categories(self):
-        # Implement action for Categories button
+        categoryMenu=CategoryMenu(self.window)
         pass
 
     def show_search(self):
@@ -612,7 +667,6 @@ class MainMenu():
         self.exitButton.show()
     def exit_app(self):
         # Implement action for Exit button
-        print("hi")
         self.window.close()
 
 
