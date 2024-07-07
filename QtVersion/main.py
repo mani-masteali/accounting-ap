@@ -121,7 +121,8 @@ class User:
                 if 1 <= int(day) <= max_days[int(month)]:
                     self.birthDate = birthDate
                 else:
-                    raise ValueError(f'invalid day. this month has only {max_days[int(month)]}')
+                    raise ValueError(f'invalid day. this month has only {
+                                     max_days[int(month)]}')
             elif int(year) < 1920 or int(year) > 2005:
                 raise ValueError(f'birth year must be between 1920 and 2005')
             elif int(month) < 1 or int(month) > 12:
@@ -139,6 +140,7 @@ class User:
                                 (self.firstName, self.lastName, self.nationalId, self.phoneNumber, self.userName, self.password, self.city, self.email, self.birthDate, self.securityQAnswer))
         database.commit()
 
+
 class Category:
     def __init__(self, name):
         self.name = name
@@ -147,17 +149,23 @@ class Category:
         if not self.name:
             raise ValueError("Category name cannot be empty")
         if len(self.name) > 15:
-            raise ValueError("Category name cannot be longer than 15 characters")
+            raise ValueError(
+                "Category name cannot be longer than 15 characters")
         if not re.match("^[A-Za-z0-9]*$", self.name):
-            raise ValueError("Category name can only contain English letters and numbers")
+            raise ValueError(
+                "Category name can only contain English letters and numbers")
 
     def save_to_database(self, db, category_type):
         cursor = db.cursor
-        cursor.execute(f"SELECT name FROM {category_type} WHERE name=?", (self.name,))
+        cursor.execute(f"SELECT name FROM {
+                       category_type} WHERE name=?", (self.name,))
         if cursor.fetchone():
             raise ValueError("Category name already exists")
-        cursor.execute(f"INSERT INTO {category_type} (name) VALUES (?)", (self.name,))
+        cursor.execute(
+            f"INSERT INTO {category_type} (name) VALUES (?)", (self.name,))
         db.commit()
+
+
 class MyWindow(QMainWindow):
     def __init__(self):
         super().__init__()
@@ -182,14 +190,17 @@ class DataBase:
 
     def create_data_base(self):
         self.cursor.execute("CREATE TABLE IF NOT EXISTS users (first_name TEXT, last_name TEXT, national_id TEXT, phone_number TEXT, user_name TEXT PRIMARY KEY, password TEXT, city TEXT, email TEXT, birth_date TEXT, security_q_answer TEXT)")
-        self.cursor.execute("CREATE TABLE IF NOT EXISTS income_categories (name TEXT PRIMARY KEY)")
-        self.cursor.execute("CREATE TABLE IF NOT EXISTS expense_categories (name TEXT PRIMARY KEY)")
+        self.cursor.execute(
+            "CREATE TABLE IF NOT EXISTS income_categories (name TEXT PRIMARY KEY)")
+        self.cursor.execute(
+            "CREATE TABLE IF NOT EXISTS expense_categories (name TEXT PRIMARY KEY)")
+
 
 class SignupLoginMenu():
     def __init__(self, window: MyWindow):
         self.window = window
-        self.singuping=False
-        self.logining=False
+        self.singuping = False
+        self.logining = False
         self.login_signup_menu()
 
     def login_signup_menu(self):
@@ -250,36 +261,36 @@ class SignupLoginMenu():
         self.cityLabel = QLabel('choose your city: ', self.window)
         self.cityCombobox = QComboBox(self.window)
         self.cities = ['Karaj',
-                    'Ardabil',
-                    'Bushehr',
-                    'Shahrekord',
-                    'Tabriz',
-                    'Shiraz',
-                    'Rasht',
-                    'Gorgan',
-                    'Hamadan',
-                    'Bandar Abas',
-                    'Ilam',
-                    'Isfahan',
-                    'Kerman',
-                    'Kermanshah',
-                    'Ahwaz',
-                    'Yasuj',
-                    'Sanandaj',
-                    'Khoramabad',
-                    'Arak',
-                    'Sari',
-                    'Bojnurd',
-                    'Qazvin',
-                    'Qom',
-                    'Mashhad',
-                    'Semnan',
-                    'Zahedan',
-                    'Birjand',
-                    'Tehran',
-                    'Urmia',
-                    'Yazd',
-                    'Zanjan']
+                       'Ardabil',
+                       'Bushehr',
+                       'Shahrekord',
+                       'Tabriz',
+                       'Shiraz',
+                       'Rasht',
+                       'Gorgan',
+                       'Hamadan',
+                       'Bandar Abas',
+                       'Ilam',
+                       'Isfahan',
+                       'Kerman',
+                       'Kermanshah',
+                       'Ahwaz',
+                       'Yasuj',
+                       'Sanandaj',
+                       'Khoramabad',
+                       'Arak',
+                       'Sari',
+                       'Bojnurd',
+                       'Qazvin',
+                       'Qom',
+                       'Mashhad',
+                       'Semnan',
+                       'Zahedan',
+                       'Birjand',
+                       'Tehran',
+                       'Urmia',
+                       'Yazd',
+                       'Zanjan']
         self.cityCombobox.addItems(self.cities)
         # variables for email
         self.emailLabel = QLabel('enter your email: ', self.window)
@@ -461,7 +472,7 @@ class SignupLoginMenu():
         if self.firstnamewarning.text() != ' ' or self.lastnamewarning.text() != ' ' or self.nationalIDwarning.text() != ' ' or self.phonenumberwarning.text() != ' ' or self.usernamewarning.text() != ' ' or self.passwordwarning.text() != ' ' or self.repeatedpasswordwarning.text() != ' ' or self.emailwarning.text() != ' ' or self.datewarning.text() != ' ':
             self.valid = False
         if self.valid:
-            self.singuping=True
+            self.singuping = True
             self.user.save_database(self.window.db)
             self.clear_layout(self.layout)
             self.mainMenu = MainMenu(self.window)
@@ -502,7 +513,7 @@ class SignupLoginMenu():
             self.userNameLoginLine.text(), self.passwordLoginLine.text()))
         result = self.window.db.cursor.fetchone()
         if result:
-            self.logining=True
+            self.logining = True
             self.clear_layout(self.loginlayout)
             self.mainMenu = MainMenu(self.window)
         else:
@@ -557,6 +568,7 @@ class SignupLoginMenu():
         else:
             self.forgetwarning.setText('your security answer was wrong.')
 
+
 class CategoryMenu:
     def __init__(self, window: MyWindow):
         self.window = window
@@ -564,43 +576,67 @@ class CategoryMenu:
 
     def init_ui(self):
         self.window.signupLoginMenu.mainMenu.hide_menu()
+        
         central_widget = QWidget(self.window)
         self.window.setCentralWidget(central_widget)
         self.layout = QGridLayout(central_widget)
-        
+
         self.categoryTypeLabel = QLabel('Select category type: ', self.window)
         self.categoryTypeComboBox = QComboBox(self.window)
         self.categoryTypeComboBox.addItems(['Income', 'Expense'])
-        
+
         self.categoryNameLabel = QLabel('Enter category name: ', self.window)
         self.categoryNameLineEdit = QLineEdit(self.window)
         self.categoryNameWarning = QLabel(' ', self.window)
-        
+
         self.submitButton = QPushButton('Submit', self.window)
         self.submitButton.clicked.connect(self.submit_category)
-        
+        self.backButton = QPushButton('Back', self.window)
+        self.backButton.clicked.connect(self.back)
+
         self.layout.addWidget(self.categoryTypeLabel, 0, 0)
         self.layout.addWidget(self.categoryTypeComboBox, 0, 1)
         self.layout.addWidget(self.categoryNameLabel, 1, 0)
         self.layout.addWidget(self.categoryNameLineEdit, 1, 1)
         self.layout.addWidget(self.categoryNameWarning, 1, 2)
         self.layout.addWidget(self.submitButton, 2, 0, 1, 3)
+        self.layout.addWidget(self.backButton, 3, 0, 1, 3)
+
 
     def submit_category(self):
         category_type = self.categoryTypeComboBox.currentText().lower() + '_categories'
         category_name = self.categoryNameLineEdit.text()
         category = Category(category_name)
-        
+
         try:
             category.validate_name()
             category.save_to_database(self.window.db, category_type)
             self.categoryNameWarning.setText('Category added successfully')
         except ValueError as e:
             self.categoryNameWarning.setText(str(e))
+    
+    def clear_layout(self, layout):
+        for row in range(layout.rowCount()):
+            for column in range(layout.columnCount()):
+                item = layout.itemAtPosition(row, column)
+                if item:
+    def back(self):
+        self.categoryNameLabel.setVisible(False)
+        self.categoryNameLineEdit.setVisible(False)
+        self.categoryNameWarning.setVisible(False)
+        self.categoryTypeComboBox.setVisible(False)
+        self.categoryTypeLabel.setVisible(False)
+        self.submitButton.setVisible(False)
+        self.backButton.setVisible(False)
+        self.mainMenu = MainMenu(self.window)
+        
+        
+
 class MainMenu():
-    def __init__(self, window:MyWindow):
+    def __init__(self, window: MyWindow):
         self.window = window
         self.show_main_menu()
+
     def register_income(self):
         # Implement action for Register Income button
         pass
@@ -610,8 +646,8 @@ class MainMenu():
         pass
 
     def show_categories(self):
-        self.categoryMenu=CategoryMenu(self.window)
-        pass
+        self.categoryMenu = CategoryMenu(self.window)
+       
 
     def show_search(self):
         # Implement action for Search button
@@ -624,6 +660,7 @@ class MainMenu():
     def show_settings(self):
         # Implement action for Settings button
         pass
+
     def show_main_menu(self):
         # Welcome label
         self.welcominglabel = QLabel('Welcome to elmos balance.', self.window)
@@ -672,9 +709,11 @@ class MainMenu():
         self.exitButton.setGeometry(250, 550, 200, 50)
         self.exitButton.clicked.connect(self.exit_app)
         self.exitButton.show()
+
     def exit_app(self):
         # Implement action for Exit button
         self.window.close()
+
     def hide_menu(self):
         self.welcominglabel.setVisible(False)
         self.registerIncomeButton.setVisible(False)
@@ -684,8 +723,6 @@ class MainMenu():
         self.reportingButton.setVisible(False)
         self.settingsButton.setVisible(False)
         self.exitButton.setVisible(False)
-
-
 
 
 if __name__ == '__main__':
