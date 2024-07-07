@@ -593,7 +593,7 @@ class CategoryMenu:
         
         try:
             category.validate_name()
-            category.save_to_database(self.window.db.cursor, category_type)
+            category.save_to_database(self.window.db, category_type)
             self.categoryNameWarning.setText('Category added successfully')
         except ValueError as e:
             self.categoryNameWarning.setText(str(e))
