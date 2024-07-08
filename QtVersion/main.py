@@ -158,26 +158,26 @@ class RegisterFine:
     def __init__(self, db):
         self.db = db
 
-    def register_income(self, amount, date, category, description,user):
+    def register_income(self, amount, date, category, description):
         self.validate_amount(amount)
         self.validate_date(date)
         self.validate_category(category)
         self.validate_description(description)
 
         cursor = self.db.cursor
-        cursor.execute("INSERT INTO income_fine (username, amount, date, category, description) VALUES (?,?,?,?,?)",
-                    (user,amount, date, category, description))
+        cursor.execute("INSERT INTO income_fine (amount, date, category, description) VALUES (?,?,?,?)",
+                    (amount, date, category, description))
         self.db.commit()
 
-    def register_expense(self, amount, date, category, description,user):
+    def register_expense(self, amount, date, category, description):
         self.validate_amount(amount)
         self.validate_date(date)
         self.validate_category(category)
         self.validate_description(description)
 
         cursor = self.db.cursor()
-        cursor.execute("INSERT INTO expense_fine (username, amount, date, category, description) VALUES (?,?,?,?,?)",
-                    (user,amount, date, category, description))
+        cursor.execute("INSERT INTO expense_fine (amount, date, category, description) VALUES (?,?,?,?)",
+                    (amount, date, category, description))
         self.db.commit()
 
     def validate_amount(self, amount):
@@ -208,7 +208,6 @@ class RegisterFine:
         cursor = self.db.cursor
         cursor.execute(f"""
             CREATE TABLE IF NOT EXISTS income_fine (
-                username TEXT PRIMARY KEY,
                 amount REAL,
                 date TEXT,
                 category TEXT,
@@ -217,7 +216,6 @@ class RegisterFine:
         """)
         cursor.execute(f"""
             CREATE TABLE IF NOT EXISTS expense_fine (
-                username TEXT PRIMARY KEY,
                 amount REAL,
                 date TEXT,
                 category TEXT,
@@ -287,10 +285,7 @@ class RegisterIncomeMenu:
         try:
             register_fine = RegisterFine(self.window.db)
             register_fine.create_tables()
-            if self.window.signupLoginMenu.logining:
-                register_fine.register_income(float(amount), date, category, description,self.window.signupLoginMenu.usernamelogin)
-            elif self.window.signupLoginMenu.singuping:
-                register_fine.register_income(float(amount), date, category, description,self.window.signupLoginMenu.user.userName)
+            register_fine.register_income(float(amount), date, category, description)
             self.descriptionWarning.setText('Income registered successfully')
         except ValueError as e:
             self.descriptionWarning.setText(str(e))
@@ -430,7 +425,7 @@ class DataBase:
         self.db.commit()
 
     def create_data_base(self):
-        self.cursor.execute("CREATE TABLE IF NOT EXISTS users (first_name TEXT, last_name TEXT, national_id TEXT, phone_number TEXT, user_name TEXT PRIMARY KEY, password TEXT, city TEXT, email TEXT, birth_date TEXT, security_q_answer TEXT)")
+        self.cursor.execute("CREATE TABLE IF NOT EXISTS users (first_name TEXT, last_name TEXT, national_id TEXT, phone_number TEXT, user_name TEXT, password TEXT, city TEXT, email TEXT, birth_date TEXT, security_q_answer TEXT)")
         self.cursor.execute(
             "CREATE TABLE IF NOT EXISTS income_categories (name TEXT PRIMARY KEY)")
         self.cursor.execute(
@@ -1008,8 +1003,9 @@ class SearchMenu:
 class Search:
     def __init__(self, menu: SearchMenu):
         self.menu = menu
-        self.model=self.menu.model
-        self.table=self.menu.table
+        self.model = self.menu.model
+        self.table = self.menu.table
+
     def search(self, db: DataBase):
         self.searchText = self.menu.searchLine.text()
         self.searchfilters = {
@@ -1021,48 +1017,48 @@ class Search:
             'search_in': self.menu.get_filters()[5] if self.menu.get_filters()[5].strip() else None
         }
         if self.searchfilters['income_expense'] == 'income':
-            base_query = f"SELECT * FROM income_fine WHERE username='{self.menu.window.signupLoginMenu.usernamelogin if self.menu.window.signupLoginMenu.logining else self.menu.window.signupLoginMenu.user.userName}' and date LIKE '%{self.searchText}%' OR category LIKE '%{self.searchText}%' OR description LIKE '%{self.searchText}%' or amount LIKE '%{self.searchText}%'"
+            base_query = f"SELECT * FROM income_fine WHERE (date LIKE '%{self.searchText}%' OR category LIKE '%{self.searchText}%' OR description LIKE '%{self.searchText}%' or amount LIKE '%{self.searchText}%')"
             self.filtering(base_query)
             db.cursor.execute(base_query)
             rows = db.cursor.fetchall()
             self.model.clear()
             self.model.setHorizontalHeaderLabels(["Amount", "Date", "Category", "Description"])
             for row in rows:
-                date = QStandardItem(str(row[1]))
-                category = QStandardItem(str(row[2]))
-                description = QStandardItem(str(row[3]))
-                amount = QStandardItem(str(row[4]))
+                date = QStandardItem(str(row[0]))
+                category = QStandardItem(str(row[1]))
+                description = QStandardItem(str(row[2]))
+                amount = QStandardItem(str(row[3]))
                 self.model.appendRow([date, category, description, amount])
             self.table.show()
         elif self.searchfilters['income_expense'] == 'expense':
-            base_query = f"SELECT * FROM expense_fine WHERE username='{self.menu.window.signupLoginMenu.usernamelogin if self.menu.window.signupLoginMenu.logining else self.menu.window.signupLoginMenu.user.userName}' and date LIKE '%{self.searchText}%' OR category LIKE '%{self.searchText}%' OR description LIKE '%{self.searchText}%' or amount LIKE '%{self.searchText}%'"
+            base_query = f"SELECT * FROM expense_fine WHERE (date LIKE '%{self.searchText}%' OR category LIKE '%{self.searchText}%' OR description LIKE '%{self.searchText}%' or amount LIKE '%{self.searchText}%')"
             self.filtering(base_query)
             db.cursor.execute(base_query)
             rows = db.cursor.fetchall()
             self.model.clear()
             self.model.setHorizontalHeaderLabels(["Amount", "Date", "Category", "Description"])
             for row in rows:
-                date = QStandardItem(str(row[1]))
-                category = QStandardItem(str(row[2]))
-                description = QStandardItem(str(row[3]))
-                amount = QStandardItem(str(row[4]))
+                date = QStandardItem(str(row[0]))
+                category = QStandardItem(str(row[1]))
+                description = QStandardItem(str(row[2]))
+                amount = QStandardItem(str(row[3]))
                 self.model.appendRow([date, category, description, amount])
             self.table.show()
         elif self.searchfilters['income_expense'] == 'both':
-            base_query1 = base_query = f"SELECT * FROM income_fine WHERE username='{self.menu.window.signupLoginMenu.usernamelogin if self.menu.window.signupLoginMenu.logining else self.menu.window.signupLoginMenu.user.userName}' and  date LIKE '%{self.searchText}%' OR category LIKE '%{self.searchText}%' OR description LIKE '%{self.searchText}%' or amount LIKE '%{self.searchText}%'"
+            base_query1 = base_query = f"SELECT * FROM income_fine WHERE (date LIKE '%{self.searchText}%' OR category LIKE '%{self.searchText}%' OR description LIKE '%{self.searchText}%' or amount LIKE '%{self.searchText}%')"
             self.filtering(base_query1)
             db.cursor.execute(base_query1)
-            base_query2 = base_query = f"SELECT * FROM expense_fine WHERE username='{self.menu.window.signupLoginMenu.usernamelogin if self.menu.window.signupLoginMenu.logining else self.menu.window.signupLoginMenu.user.userName}' and date LIKE '%{self.searchText}%' OR category LIKE '%{self.searchText}%' OR description LIKE '%{self.searchText}%' or amount LIKE '%{self.searchText}%'"
+            base_query2 = base_query = f"SELECT * FROM expense_fine WHERE (date LIKE '%{self.searchText}%' OR category LIKE '%{self.searchText}%' OR description LIKE '%{self.searchText}%' or amount LIKE '%{self.searchText}%')"
             self.filtering(base_query2)
             db.cursor.execute(base_query2)
             rows = db.cursor.fetchall()
             self.model.clear()
             self.model.setHorizontalHeaderLabels(["Amount", "Date", "Category", "Description"])
             for row in rows:
-                date = QStandardItem(str(row[1]))
-                category = QStandardItem(str(row[2]))
-                description = QStandardItem(str(row[3]))
-                amount = QStandardItem(str(row[4]))
+                date = QStandardItem(str(row[0]))
+                category = QStandardItem(str(row[1]))
+                description = QStandardItem(str(row[2]))
+                amount = QStandardItem(str(row[3]))
                 self.model.appendRow([date, category, description, amount])
             self.table.show()
 
@@ -1085,8 +1081,6 @@ class Search:
                         base_query += f" AND description='{value}'"
                     elif value == 'both':
                         base_query += f" AND category='{value}' and description='{value}'"
-
-
 
 
 class ReportMenu:
@@ -1217,65 +1211,69 @@ class Report:
             'search_in': self.menu.get_filters()[5] if self.menu.get_filters()[5].strip() else None
         }
         if self.searchfilters['income_expense'] == 'income':
-            base_query = f"SELECT * FROM income_fine WHERE username='{self.menu.window.signupLoginMenu.usernamelogin if self.menu.window.signupLoginMenu.logining else self.menu.window.signupLoginMenu.user.userName}'"
+            base_query = ["SELECT * FROM income_fine WHERE"]
+            print(base_query)
             self.filtering(base_query)
-            db.cursor.execute(base_query)
+            db.cursor.execute(base_query[0])
             rows = db.cursor.fetchall()
             self.model.clear()
             self.model.setHorizontalHeaderLabels(["Amount", "Date", "Category", "Description"])
             for row in rows:
-                date = QStandardItem(str(row[1]))
-                category = QStandardItem(str(row[2]))
-                description = QStandardItem(str(row[3]))
-                amount = QStandardItem(str(row[4]))
+                date = QStandardItem(str(row[0]))
+                category = QStandardItem(str(row[1]))
+                description = QStandardItem(str(row[2]))
+                amount = QStandardItem(str(row[3]))
                 self.model.appendRow([date, category, description, amount])
             self.table.show()
         elif self.searchfilters['income_expense'] == 'expense':
-            base_query = f"SELECT * FROM expense_fine WHERE username='{self.menu.window.signupLoginMenu.usernamelogin if self.menu.window.signupLoginMenu.logining else self.menu.window.signupLoginMenu.user.userName}'"
+            base_query = ["SELECT * FROM expense_fine WHERE"]
             self.filtering(base_query)
-            db.cursor.execute(base_query)
+            db.cursor.execute(base_query[0])
             rows = db.cursor.fetchall()
             self.model.clear()
             self.model.setHorizontalHeaderLabels(["Amount", "Date", "Category", "Description"])
             for row in rows:
-                date = QStandardItem(str(row[1]))
-                category = QStandardItem(str(row[2]))
-                description = QStandardItem(str(row[3]))
-                amount = QStandardItem(str(row[4]))
+                date = QStandardItem(str(row[0]))
+                category = QStandardItem(str(row[1]))
+                description = QStandardItem(str(row[2]))
+                amount = QStandardItem(str(row[3]))
                 self.model.appendRow([date, category, description, amount])
             self.table.show()
+            print(self.searchfilters)
+            print(row)
         elif self.searchfilters['income_expense'] == 'both':
-            base_query1 = base_query = f"SELECT * FROM income_fine WHERE username='{self.menu.window.signupLoginMenu.usernamelogin if self.menu.window.signupLoginMenu.logining else self.menu.window.signupLoginMenu.user.userName}'"
+            base_query1 = base_query = ["SELECT * FROM income_fine WHERE"]
             self.filtering(base_query1)
-            db.cursor.execute(base_query1)
-            base_query2 = base_query = f"SELECT * FROM expense_fine WHERE username='{self.menu.window.signupLoginMenu.usernamelogin if self.menu.window.signupLoginMenu.logining else self.menu.window.signupLoginMenu.user.userName}'"
+            db.cursor.execute(base_query1[0])
+            base_query2 = base_query = ["SELECT * FROM expense_fine WHERE"]
             self.filtering(base_query2)
-            db.cursor.execute(base_query2)
+            db.cursor.execute(base_query2[0])
             rows = db.cursor.fetchall()
             self.model.clear()
             self.model.setHorizontalHeaderLabels(["Amount", "Date", "Category", "Description"])
             for row in rows:
-                date = QStandardItem(str(row[1]))
-                category = QStandardItem(str(row[2]))
-                description = QStandardItem(str(row[3]))
-                amount = QStandardItem(str(row[4]))
+                date = QStandardItem(str(row[0]))
+                category = QStandardItem(str(row[1]))
+                description = QStandardItem(str(row[2]))
+                amount = QStandardItem(str(row[3]))
                 self.model.appendRow([date, category, description, amount])
             self.table.show()
 
     def filtering(self, base_query):
+        print(self.searchfilters.items())
         for filter, value in self.searchfilters.items():
             if filter != 'income_expense' and value is not None:
                 if filter == 'day' and value is not None:
-                    base_query += f" AND DAY(DATE(date))='{value}'"
+                    base_query[0] += f" SUBSTR(date, 9) ='{value}'"
                 elif filter == 'month' and value is not None:
-                    base_query += f" MONTH(DATE(date))='{value}'"
+                    base_query[0] += f" AND SUBSTR(date, 6, 2)='{value}'"
                 elif filter == 'year' and value is not None:
-                    base_query += f" AND YEAR(DATE(date))='{value}'"
+                    base_query[0] += f" AND SUBSTR(date, 1, 4)='{value}'"
                 elif filter == 'money_range' and value is not None:
                     value_range = value.split(sep=' ')
-                    base_query += f" AND amount BETWEEN {value_range[0]} AND {value_range[1]}"
+                    base_query[0] += f" AND amount BETWEEN {value_range[0]} AND {value_range[1]}"
                 elif filter == 'search_in' and value is not None:
-                        base_query += f" AND category='{value}'"
+                        base_query[0] += f" AND category='{value}'"
 
 class MainMenu():
     def __init__(self, window: MyWindow):
