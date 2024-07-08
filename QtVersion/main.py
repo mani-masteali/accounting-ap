@@ -1,4 +1,4 @@
-from PyQt6.QtWidgets import QApplication, QMainWindow, QPushButton, QLabel, QLineEdit, QGridLayout, QWidget, QComboBox
+from PyQt6.QtWidgets import QApplication, QMainWindow, QPushButton, QLabel, QLineEdit, QGridLayout, QWidget, QComboBox,QRadioButton,QButtonGroup
 from PyQt6.QtCore import Qt
 from datetime import datetime
 import sqlite3
@@ -864,7 +864,182 @@ class CategoryMenu:
         self.backButton.setVisible(False)
         self.mainMenu = MainMenu(self.window)
 
+class Search:
+    pass
+class SearchMenu:
+    def __init__(self, window: MyWindow):
+        self.window = window
+        self.init_ui()
 
+    def init_ui(self):
+        self.window.signupLoginMenu.mainMenu.hide_menu()
+        central_widget = QWidget(self.window)
+        self.window.setCentralWidget(central_widget)
+        self.layout = QGridLayout(central_widget)
+
+        button_group = QButtonGroup()
+        self.searchLabel=QLabel('Type for search: ',self.window)
+        self.searchLine=QLineEdit(self.window)
+        self.filterLabel=QLabel('filters: ',self.window)
+
+        self.dayfilter=QRadioButton('day:',self.window)
+        self.dayLine=QLineEdit(self.window)
+        self.dayLine.setVisible(False)
+        self.dayfilter.setAutoExclusive(False)
+        button_group.addButton(self.dayfilter)
+        self.dayfilter.toggled.connect(lambda checked: self.dayLine.setVisible(checked))
+
+        self.monthfilter=QRadioButton('month:',self.window)
+        self.monthLine=QLineEdit(self.window)
+        self.monthLine.setVisible(False)
+        self.monthfilter.setAutoExclusive(False)
+        button_group.addButton(self.monthfilter)
+        self.monthfilter.toggled.connect(lambda checked: self.monthLine.setVisible(checked))
+
+        self.yearfilter=QRadioButton('year:',self.window)
+        self.yearLine=QLineEdit(self.window)
+        self.yearLine.setVisible(False)
+        self.yearfilter.setAutoExclusive(False)
+        button_group.addButton(self.yearfilter)
+        self.yearfilter.toggled.connect(lambda checked: self.yearLine.setVisible(checked))
+
+        self.incomeExpensefilter=QRadioButton('type: ',self.window)
+        self.incomeExpenseCombo=QComboBox(self.window)
+        self.incomeExpenseCombo.setVisible(False)
+        self.incomeExpenseCombo.addItem('income')
+        self.incomeExpenseCombo.addItem('expense')
+        self.incomeExpenseCombo.addItem('both')
+        self.incomeExpensefilter.setAutoExclusive(False)
+        button_group.addButton(self.incomeExpensefilter)
+        self.incomeExpensefilter.toggled.connect(lambda checked: self.incomeExpenseCombo.setVisible(checked))
+
+        self.moneyrangefilter=QRadioButton('value range(type two number seperated by space: )',self.window)
+        self.moneyrangeline=QLineEdit(self.window)
+        self.moneyrangeline.setVisible(False)
+        self.moneyrangefilter.setAutoExclusive(False)
+        button_group.addButton(self.moneyrangefilter)
+        self.moneyrangefilter.toggled.connect(lambda checked: self.moneyrangeline.setVisible(checked))
+
+        self.searchinfilter=QRadioButton('choose the one you want to search in: ',self.window)
+        self.searchinCombo=QComboBox(self.window)
+        self.searchinCombo.addItem('descriptions')
+        self.searchinCombo.addItem('categories')
+        self.searchinCombo.addItem('both')
+        self.searchinLine=QLineEdit(self.window)
+        self.searchinCombo.setVisible(False)
+        self.searchinLine.setVisible(False)
+        self.searchinfilter.setAutoExclusive(False)
+        button_group.addButton(self.searchinfilter)
+        self.searchinfilter.toggled.connect(lambda checked: self.searchinCombo.setVisible(checked))
+        self.searchinCombo.currentTextChanged.connect(self.searchin_func)
+
+        self.submitButton = QPushButton('Submit', self.window)
+        self.submitButton.clicked.connect(self.show_search_results)
+        self.backButton = QPushButton('Back', self.window)
+        self.backButton.clicked.connect(self.back)
+
+        self.layout.addWidget(self.searchLabel,0,0)
+        self.layout.addWidget(self.searchLine,0,1)
+        self.layout.addWidget(self.filterLabel,1,0)
+        self.layout.addWidget(self.dayfilter,2,0)
+        self.layout.addWidget(self.dayLine,2,1)
+        self.layout.addWidget(self.monthfilter,3,0)
+        self.layout.addWidget(self.monthLine,3,1)
+        self.layout.addWidget(self.yearfilter,4,0)
+        self.layout.addWidget(self.yearLine,4,1)
+        self.layout.addWidget(self.incomeExpensefilter,5,0)
+        self.layout.addWidget(self.incomeExpenseCombo,5,1)
+        self.layout.addWidget(self.moneyrangefilter,6,0)
+        self.layout.addWidget(self.moneyrangeline,6,1)
+        self.layout.addWidget(self.searchinfilter,7,0)
+        self.layout.addWidget(self.searchinCombo,7,1)
+        self.layout.addWidget(self.searchinLine,7,2)
+        self.layout.addWidget(self.submitButton,8,0)
+        self.layout.addWidget(self.backButton,8,1)
+    def searchin_func(self):
+        if self.searchinCombo.isVisible() :
+            self.searchinLine.setVisible(True) 
+        else:
+            self.searchinLine.setVisible(False)
+    def show_search_results(self):
+        pass
+    def back(self):
+        self.searchLabel.setVisible(False)
+        self.searchLine.setVisible(False)
+        self.filterLabel.setVisible(False)
+        self.dayfilter.setVisible(False)
+        self.dayLine.setVisible(False)
+        self.monthfilter.setVisible(False)
+        self.monthLine.setVisible(False)
+        self.yearfilter.setVisible(False)
+        self.yearLine.setVisible(False)
+        self.incomeExpensefilter.setVisible(False)
+        self.incomeExpenseCombo.setVisible(False)
+        self.moneyrangefilter.setVisible(False)
+        self.moneyrangeline.setVisible(False)
+        self.searchinfilter.setVisible(False)
+        self.searchinCombo.setVisible(False)
+        self.searchinLine.setVisible(False)
+        self.submitButton.setVisible(False)
+        self.backButton.setVisible(False)
+        self.mainMenu = MainMenu(self.window)
+
+
+class Report:
+    pass
+class ReportMenu:
+    def __init__(self, window: MyWindow):
+        self.window = window
+        self.init_ui()
+
+    def init_ui(self):
+        self.window.signupLoginMenu.mainMenu.hide_menu()
+        central_widget = QWidget(self.window)
+        self.window.setCentralWidget(central_widget)
+        self.layout = QGridLayout(central_widget)
+        button_group = QButtonGroup()
+
+        self.reportLabel=QLabel('choose the items below to specify your report.',self.window)
+        self.dayfilter=QRadioButton('day:',self.window)
+        self.dayLine=QLineEdit(self.window)
+        self.dayLine.setVisible(False)
+        self.dayfilter.setAutoExclusive(False)
+        button_group.addButton(self.dayfilter)
+        self.dayfilter.toggled.connect(lambda checked: self.dayLine.setVisible(checked))
+
+        self.monthfilter=QRadioButton('month:',self.window)
+        self.monthLine=QLineEdit(self.window)
+        self.monthLine.setVisible(False)
+        self.monthfilter.setAutoExclusive(False)
+        button_group.addButton(self.monthfilter)
+        self.monthfilter.toggled.connect(lambda checked: self.monthLine.setVisible(checked))
+
+        self.yearfilter=QRadioButton('year:',self.window)
+        self.yearLine=QLineEdit(self.window)
+        self.yearLine.setVisible(False)
+        self.yearfilter.setAutoExclusive(False)
+        button_group.addButton(self.yearfilter)
+        self.yearfilter.toggled.connect(lambda checked: self.yearLine.setVisible(checked))
+
+        self.incomeExpensefilter=QRadioButton('type: ',self.window)
+        self.incomeExpenseCombo=QComboBox(self.window)
+        self.incomeExpenseCombo.setVisible(False)
+        self.incomeExpenseCombo.addItem('income')
+        self.incomeExpenseCombo.addItem('expense')
+        self.incomeExpenseCombo.addItem('both')
+        self.incomeExpensefilter.setAutoExclusive(False)
+        button_group.addButton(self.incomeExpensefilter)
+        self.incomeExpensefilter.toggled.connect(lambda checked: self.incomeExpenseCombo.setVisible(checked))
+
+        self.layout.addWidget(self.reportLabel,0,0)
+        self.layout.addWidget(self.dayfilter,1,0)
+        self.layout.addWidget(self.dayLine,1,1)
+        self.layout.addWidget(self.monthfilter,2,0)
+        self.layout.addWidget(self.monthLine,2,1)
+        self.layout.addWidget(self.yearfilter,3,0)
+        self.layout.addWidget(self.yearLine,3,1)
+        self.layout.addWidget(self.incomeExpensefilter,4,0)
+        self.layout.addWidget(self.incomeExpenseCombo,4,1)
 class MainMenu():
     def __init__(self, window: MyWindow):
         self.window = window
@@ -884,9 +1059,11 @@ class MainMenu():
 
     def show_search(self):
         self.hide_menu()
+        self.searchMenu = SearchMenu(self.window)
 
     def show_reporting(self):
         self.hide_menu()
+        self.reportMenu = ReportMenu(self.window)
 
     def show_settings(self):
         self.hide_menu()
