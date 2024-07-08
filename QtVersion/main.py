@@ -1,6 +1,7 @@
 from PyQt6.QtWidgets import QApplication, QMainWindow, QPushButton, QLabel, QLineEdit, QGridLayout, QWidget, QComboBox,QRadioButton,QButtonGroup,QTableView
 from PyQt6.QtCore import Qt, QAbstractTableModel,QVariant
 from PyQt6.QtGui import QStandardItemModel,QStandardItem
+import matplotlib.pyplot as plt
 from datetime import datetime
 import sqlite3
 import sys
@@ -1082,10 +1083,6 @@ class Search:
 
 
 
-
-
-class Report:
-    pass
 class ReportMenu:
     def __init__(self, window: MyWindow):
         self.window = window
@@ -1130,6 +1127,25 @@ class ReportMenu:
         button_group.addButton(self.incomeExpensefilter)
         self.incomeExpensefilter.toggled.connect(lambda checked: self.incomeExpenseCombo.setVisible(checked))
 
+        self.moneyrangefilter=QRadioButton('value range(type two number seperated by space: )',self.window)
+        self.moneyrangeline=QLineEdit(self.window)
+        self.moneyrangeline.setVisible(False)
+        self.moneyrangefilter.setAutoExclusive(False)
+        button_group.addButton(self.moneyrangefilter)
+        self.moneyrangefilter.toggled.connect(lambda checked: self.moneyrangeline.setVisible(checked))
+
+        self.categoryfilter=QRadioButton('please choose the category you want to search in: ',self.window)
+        self.categoryline=QLineEdit(self.window)
+        self.categoryline.setVisible(False)
+        self.categoryfilter.setAutoExclusive(False)
+        button_group.addButton(self.categoryfilter)
+        self.categoryfilter.toggled.connect(lambda checked: self.categoryline.setVisible(checked))
+
+        self.submitButton = QPushButton('Submit', self.window)
+        self.submitButton.clicked.connect(self.show_search_results)
+        self.backButton = QPushButton('Back', self.window)
+        self.backButton.clicked.connect(self.back)
+
         self.layout.addWidget(self.reportLabel,0,0)
         self.layout.addWidget(self.dayfilter,1,0)
         self.layout.addWidget(self.dayLine,1,1)
@@ -1139,6 +1155,122 @@ class ReportMenu:
         self.layout.addWidget(self.yearLine,3,1)
         self.layout.addWidget(self.incomeExpensefilter,4,0)
         self.layout.addWidget(self.incomeExpenseCombo,4,1)
+        self.layout.addWidget(self.moneyrangefilter,5,0)
+        self.layout.addWidget(self.moneyrangeline,5,1)
+        self.layout.addWidget(self.categoryfilter,6,0)
+        self.layout.addWidget(self.categoryline,6,1)
+        self.layout.addWidget(self.submitButton,7,0)
+        self.layout.addWidget(self.backButton,7,1)
+        self.model = QStandardItemModel(self.window)
+        self.table = QTableView(self.window)
+        self.table.setModel(self.model)
+
+        self.layout.addWidget(self.table, 8, 0, 1, 2)
+        self.table.hide()
+    def back(self):
+        self.reportLabel.setVisible(False)
+        self.dayfilter.setVisible(False)
+        self.dayLine.setVisible(False)
+        self.monthfilter.setVisible(False)
+        self.monthLine.setVisible(False)
+        self.yearfilter.setVisible(False)
+        self.yearLine.setVisible(False)
+        self.incomeExpensefilter.setVisible(False)
+        self.incomeExpenseCombo.setVisible(False)
+        self.moneyrangefilter.setVisible(False)
+        self.moneyrangeline.setVisible(False)
+        self.categoryfilter.setVisible(False)
+        self.categoryline.setVisible(False)
+        self.submitButton.setVisible(False)
+        self.backButton.setVisible(False)
+        self.table.setVisible(False)
+        self.mainMenu = MainMenu(self.window)
+    def show_search_results(self):
+        self.reportEngine=Report(self)
+        self.reportEngine.search(self.window.db)
+    def get_filters(self):
+        self.day = self.dayLine.text()
+        self.month = self.monthLine.text()
+        self.year = self.yearLine.text()
+        self.incomeExpense = self.incomeExpenseCombo.currentText()
+        self.moneyrange = self.moneyrangeline.text()
+        self.searchin= self.categoryline.text()
+        return [self.day,self.month,self.year,self.incomeExpense,self.moneyrange,self.searchin]
+class Report:
+    def __init__(self, menu: ReportMenu):
+        self.menu = menu
+        self.model=self.menu.model
+        self.table=self.menu.table
+    def search(self, db: DataBase):
+        self.searchfilters = {
+            'day': self.menu.get_filters()[0] if self.menu.get_filters()[0].strip() else None,
+            'month': self.menu.get_filters()[1] if self.menu.get_filters()[1].strip() else None,
+            'year': self.menu.get_filters()[2] if self.menu.get_filters()[2].strip() else None,
+            'income_expense': self.menu.get_filters()[3] if self.menu.get_filters()[3].strip() else None,
+            'money_range': self.menu.get_filters()[4] if self.menu.get_filters()[4].strip() else None,
+            'search_in': self.menu.get_filters()[5] if self.menu.get_filters()[5].strip() else None
+        }
+        if self.searchfilters['income_expense'] == 'income':
+            base_query = f"SELECT * FROM income_fine WHERE username='{self.menu.window.signupLoginMenu.usernamelogin if self.menu.window.signupLoginMenu.logining else self.menu.window.signupLoginMenu.user.userName}'"
+            self.filtering(base_query)
+            db.cursor.execute(base_query)
+            rows = db.cursor.fetchall()
+            self.model.clear()
+            self.model.setHorizontalHeaderLabels(["Amount", "Date", "Category", "Description"])
+            for row in rows:
+                date = QStandardItem(str(row[1]))
+                category = QStandardItem(str(row[2]))
+                description = QStandardItem(str(row[3]))
+                amount = QStandardItem(str(row[4]))
+                self.model.appendRow([date, category, description, amount])
+            self.table.show()
+        elif self.searchfilters['income_expense'] == 'expense':
+            base_query = f"SELECT * FROM expense_fine WHERE username='{self.menu.window.signupLoginMenu.usernamelogin if self.menu.window.signupLoginMenu.logining else self.menu.window.signupLoginMenu.user.userName}'"
+            self.filtering(base_query)
+            db.cursor.execute(base_query)
+            rows = db.cursor.fetchall()
+            self.model.clear()
+            self.model.setHorizontalHeaderLabels(["Amount", "Date", "Category", "Description"])
+            for row in rows:
+                date = QStandardItem(str(row[1]))
+                category = QStandardItem(str(row[2]))
+                description = QStandardItem(str(row[3]))
+                amount = QStandardItem(str(row[4]))
+                self.model.appendRow([date, category, description, amount])
+            self.table.show()
+        elif self.searchfilters['income_expense'] == 'both':
+            base_query1 = base_query = f"SELECT * FROM income_fine WHERE username='{self.menu.window.signupLoginMenu.usernamelogin if self.menu.window.signupLoginMenu.logining else self.menu.window.signupLoginMenu.user.userName}'"
+            self.filtering(base_query1)
+            db.cursor.execute(base_query1)
+            base_query2 = base_query = f"SELECT * FROM expense_fine WHERE username='{self.menu.window.signupLoginMenu.usernamelogin if self.menu.window.signupLoginMenu.logining else self.menu.window.signupLoginMenu.user.userName}'"
+            self.filtering(base_query2)
+            db.cursor.execute(base_query2)
+            rows = db.cursor.fetchall()
+            self.model.clear()
+            self.model.setHorizontalHeaderLabels(["Amount", "Date", "Category", "Description"])
+            for row in rows:
+                date = QStandardItem(str(row[1]))
+                category = QStandardItem(str(row[2]))
+                description = QStandardItem(str(row[3]))
+                amount = QStandardItem(str(row[4]))
+                self.model.appendRow([date, category, description, amount])
+            self.table.show()
+
+    def filtering(self, base_query):
+        for filter, value in self.searchfilters.items():
+            if filter != 'income_expense' and value is not None:
+                if filter == 'day' and value is not None:
+                    base_query += f" AND DAY(DATE(date))='{value}'"
+                elif filter == 'month' and value is not None:
+                    base_query += f" MONTH(DATE(date))='{value}'"
+                elif filter == 'year' and value is not None:
+                    base_query += f" AND YEAR(DATE(date))='{value}'"
+                elif filter == 'money_range' and value is not None:
+                    value_range = value.split(sep=' ')
+                    base_query += f" AND amount BETWEEN {value_range[0]} AND {value_range[1]}"
+                elif filter == 'search_in' and value is not None:
+                        base_query += f" AND category='{value}'"
+
 class MainMenu():
     def __init__(self, window: MyWindow):
         self.window = window
