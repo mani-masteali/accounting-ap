@@ -123,8 +123,7 @@ class User:
                 if 1 <= int(day) <= max_days[int(month)]:
                     self.birthDate = birthDate
                 else:
-                    raise ValueError(f'invalid day. this month has only {
-                                     max_days[int(month)]}')
+                    raise ValueError(f'invalid day. this month has only {max_days[int(month)]}')
             elif int(year) < 1920 or int(year) > 2005:
                 raise ValueError(f'birth year must be between 1920 and 2005')
             elif int(month) < 1 or int(month) > 12:
@@ -497,8 +496,7 @@ class Category:
 
     def save_to_database(self, db, category_type):
         cursor = db.cursor
-        cursor.execute(f"SELECT name FROM {
-                       category_type} WHERE name=?", (self.name,))
+        cursor.execute(f"SELECT name FROM {category_type} WHERE name=?", (self.name,))
         if cursor.fetchone():
             raise ValueError("Category name already exists")
         cursor.execute(
@@ -589,36 +587,36 @@ class SignupLoginMenu():
         self.cityLabel = QLabel('choose your city: ', self.window)
         self.cityCombobox = QComboBox(self.window)
         self.cities = ['Karaj',
-                       'Ardabil',
-                       'Bushehr',
-                       'Shahrekord',
-                       'Tabriz',
-                       'Shiraz',
-                       'Rasht',
-                       'Gorgan',
-                       'Hamadan',
-                       'Bandar Abas',
-                       'Ilam',
-                       'Isfahan',
-                       'Kerman',
-                       'Kermanshah',
-                       'Ahwaz',
-                       'Yasuj',
-                       'Sanandaj',
-                       'Khoramabad',
-                       'Arak',
-                       'Sari',
-                       'Bojnurd',
-                       'Qazvin',
-                       'Qom',
-                       'Mashhad',
-                       'Semnan',
-                       'Zahedan',
-                       'Birjand',
-                       'Tehran',
-                       'Urmia',
-                       'Yazd',
-                       'Zanjan']
+                    'Ardabil',
+                    'Bushehr',
+                    'Shahrekord',
+                    'Tabriz',
+                    'Shiraz',
+                    'Rasht',
+                    'Gorgan',
+                    'Hamadan',
+                    'Bandar Abas',
+                    'Ilam',
+                    'Isfahan',
+                    'Kerman',
+                    'Kermanshah',
+                    'Ahwaz',
+                    'Yasuj',
+                    'Sanandaj',
+                    'Khoramabad',
+                    'Arak',
+                    'Sari',
+                    'Bojnurd',
+                    'Qazvin',
+                    'Qom',
+                    'Mashhad',
+                    'Semnan',
+                    'Zahedan',
+                    'Birjand',
+                    'Tehran',
+                    'Urmia',
+                    'Yazd',
+                    'Zanjan']
         self.cityCombobox.addItems(self.cities)
         # variables for email
         self.emailLabel = QLabel('enter your email: ', self.window)
