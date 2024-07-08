@@ -123,7 +123,8 @@ class User:
                 if 1 <= int(day) <= max_days[int(month)]:
                     self.birthDate = birthDate
                 else:
-                    raise ValueError(f'invalid day. this month has only { max_days[int(month)]}')
+                    raise ValueError(f'invalid day. this month has only {
+                                     max_days[int(month)]}')
             elif int(year) < 1920 or int(year) > 2005:
                 raise ValueError(f'birth year must be between 1920 and 2005')
             elif int(month) < 1 or int(month) > 12:
@@ -140,6 +141,7 @@ class User:
         database.cursor.execute("INSERT INTO users(first_name, last_name, national_id, phone_number, user_name, password, city, email, birth_date, security_q_answer) VALUES(?,?,?,?,?,?,?,?,?,?)",
                                 (self.firstName, self.lastName, self.nationalId, self.phoneNumber, self.userName, self.password, self.city, self.email, self.birthDate, self.securityQAnswer))
         database.commit()
+
 
 class MyWindow(QMainWindow):
     def __init__(self):
@@ -223,6 +225,7 @@ class RegisterFine:
             )
         """)
         self.db.commit()
+
 
 class RegisterIncomeMenu:
     def __init__(self, window: MyWindow):
@@ -369,9 +372,11 @@ class RegisterExpenseMenu:
             register_fine = RegisterFine(self.window.db)
             register_fine.create_tables()
             if self.window.signupLoginMenu.logining:
-                register_fine.register_income(float(amount), date, category, description,self.window.signupLoginMenu.usernamelogin)
+                register_fine.register_income(float(
+                    amount), date, category, description, self.window.signupLoginMenu.usernamelogin)
             elif self.window.signupLoginMenu.singuping:
-                register_fine.register_income(float(amount), date, category, description,self.window.signupLoginMenu.user.userName)
+                register_fine.register_income(float(
+                    amount), date, category, description, self.window.signupLoginMenu.user.userName)
             self.descriptionWarning.setText('Expense registered successfully')
         except ValueError as e:
             self.descriptionWarning.setText(str(e))
@@ -392,6 +397,90 @@ class RegisterExpenseMenu:
         self.backButton.setVisible(False)
         self.mainMenu = MainMenu(self.window)
 
+
+# class Setting:
+#     def __init__(self, window: MyWindow):
+#         self.window = window
+
+#     def change_user_profile(self):
+#         pass
+
+#     def delete_user_profile(self):
+#         # implement deleting user profile logic here
+#         pass
+
+#     def delete_incomes(self):
+#         # implement deleting incomes logic here
+#         pass
+
+#     def delete_expenses(self):
+#         # implement deleting expenses logic here
+#         pass
+
+
+class SettingMenu:
+    def __init__(self, window: MyWindow):
+        self.window = window
+        self.init_ui()
+
+    def init_ui(self):
+        self.window.signupLoginMenu.mainMenu.hide_menu()
+        self.central_widget = QWidget(self.window)
+        self.window.setCentralWidget(self.central_widget)
+        self.layout = QVBoxLayout(self.central_widget)
+
+        self.changeUserProfileButton = QPushButton(
+            "Change user profile", self.window)
+        self.changeUserProfileButton.clicked.connect(self.change_user_profile)
+        self.layout.addWidget(self.changeUserProfileButton)
+
+        self.deleteUserProfileButton = QPushButton(
+            "Delete user Profile", self.window)
+        self.deleteUserProfileButton.clicked.connect(self.delete_user_profile)
+        self.layout.addWidget(self.deleteUserProfileButton)
+
+        self.deleteIncomesButton = QPushButton("Delete incomes", self.window)
+        self.deleteIncomesButton.clicked.connect(self.delete_incomes)
+        self.layout.addWidget(self.deleteIncomesButton)
+
+        self.deleteExpensesButton = QPushButton("Delete expenses", self.window)
+        self.deleteExpensesButton.clicked.connect(self.delete_expenses)
+        self.layout.addWidget(self.deleteExpensesButton)
+
+        self.mainMenuButton = QPushButton("Main menu", self.window)
+        self.mainMenuButton.clicked.connect(self.back)
+        self.layout.addWidget(self.mainMenuButton)
+
+        # Set the geometry for the central widget
+        self.central_widget.setGeometry(100, 100, 300, 200)
+        self.window.show()  # Show the window
+
+    def change_user_profile(self):
+        self.profile = ChangeUserProfile(self.window)
+        # implement changing user profile logic here
+        pass
+
+    def delete_user_profile(self):
+        # implement deleting user profile logic here
+        pass
+
+    def delete_incomes(self):
+        # implement deleting incomes logic here
+        pass
+
+    def delete_expenses(self):
+        # implement deleting expenses logic here
+        pass
+
+    def back(self):
+        self.changeUserProfileButton.setVisible(False)
+        self.deleteUserProfileButton.setVisible(False)
+        self.deleteIncomesButton.setVisible(False)
+        self.deleteExpensesButton.setVisible(False)
+        self.mainMenuButton.setVisible(False)
+        self.mainMenu = MainMenu(self.window)
+
+
 class Category:
     def __init__(self, name):
         self.name = name
@@ -408,12 +497,14 @@ class Category:
 
     def save_to_database(self, db, category_type):
         cursor = db.cursor
-        cursor.execute(f"SELECT name FROM {category_type} WHERE name=?", (self.name,))
+        cursor.execute(f"SELECT name FROM {
+                       category_type} WHERE name=?", (self.name,))
         if cursor.fetchone():
             raise ValueError("Category name already exists")
         cursor.execute(
             f"INSERT INTO {category_type} (name) VALUES (?)", (self.name,))
         db.commit()
+
 
 class DataBase:
     def __init__(self):
@@ -498,36 +589,36 @@ class SignupLoginMenu():
         self.cityLabel = QLabel('choose your city: ', self.window)
         self.cityCombobox = QComboBox(self.window)
         self.cities = ['Karaj',
-                    'Ardabil',
-                    'Bushehr',
-                    'Shahrekord',
-                    'Tabriz',
-                    'Shiraz',
-                    'Rasht',
-                    'Gorgan',
-                    'Hamadan',
-                    'Bandar Abas',
-                    'Ilam',
-                    'Isfahan',
-                    'Kerman',
-                    'Kermanshah',
-                    'Ahwaz',
-                    'Yasuj',
-                    'Sanandaj',
-                    'Khoramabad',
-                    'Arak',
-                    'Sari',
-                    'Bojnurd',
-                    'Qazvin',
-                    'Qom',
-                    'Mashhad',
-                    'Semnan',
-                    'Zahedan',
-                    'Birjand',
-                    'Tehran',
-                    'Urmia',
-                    'Yazd',
-                    'Zanjan']
+                       'Ardabil',
+                       'Bushehr',
+                       'Shahrekord',
+                       'Tabriz',
+                       'Shiraz',
+                       'Rasht',
+                       'Gorgan',
+                       'Hamadan',
+                       'Bandar Abas',
+                       'Ilam',
+                       'Isfahan',
+                       'Kerman',
+                       'Kermanshah',
+                       'Ahwaz',
+                       'Yasuj',
+                       'Sanandaj',
+                       'Khoramabad',
+                       'Arak',
+                       'Sari',
+                       'Bojnurd',
+                       'Qazvin',
+                       'Qom',
+                       'Mashhad',
+                       'Semnan',
+                       'Zahedan',
+                       'Birjand',
+                       'Tehran',
+                       'Urmia',
+                       'Yazd',
+                       'Zanjan']
         self.cityCombobox.addItems(self.cities)
         # variables for email
         self.emailLabel = QLabel('enter your email: ', self.window)
@@ -752,7 +843,7 @@ class SignupLoginMenu():
         if result:
             self.wrongpass=0
             self.logining = True
-            self.usernamelogin=self.userNameLoginLine.text()
+            self.usernamelogin = self.userNameLoginLine.text()
             self.clear_layout(self.loginlayout)
             self.mainMenu = MainMenu(self.window)
         else:
@@ -813,28 +904,341 @@ class SignupLoginMenu():
             self.forgetwarning.setText('your security answer was wrong.')
 
 
-class CategoryMenu:
+class ChangeUserProfile:
     def __init__(self, window: MyWindow):
         self.window = window
-        self.init_ui()
+        self.change_profile_menu()
 
-    def init_ui(self):
-        self.window.signupLoginMenu.mainMenu.hide_menu()
+    def change_profile_menu(self):
         central_widget = QWidget(self.window)
         self.window.setCentralWidget(central_widget)
         self.layout = QGridLayout(central_widget)
 
-        self.categoryTypeLabel = QLabel('Select category type: ', self.window)
-        self.categoryTypeComboBox = QComboBox(self.window)
+        # variables for first name
+        self.firstNameLabel = QLabel('First Name: ', self.window)
+        self.firstNameLine = QLineEdit(self.window)
+        if self.window.signupLoginMenu.user is not None:
+            self.firstNameLine.setText(
+                self.window.signupLoginMenu.user.firstName)
+        else:
+            self.firstNameLine.setText("")
+        self.firstNameLine.textChanged.connect(
+            lambda text: self.window.signupLoginMenu.user.firstName if self.window.signupLoginMenu.user else "")
+
+        # variables for last name
+        self.lastNameLabel = QLabel('Last Name: ', self.window)
+        self.lastNameLine = QLineEdit(self.window)
+        if self.window.signupLoginMenu.user is not None:
+            self.lastNameLine.setText(
+                self.window.signupLoginMenu.user.lastName)
+        else:
+            self.lastNameLine.setText("")
+        self.lastNameLine.textChanged.connect(
+            lambda text: self.window.signupLoginMenu.user.lastName if self.window.signupLoginMenu.user else "")
+
+        # variables for phone number
+        self.phoneNumberLabel = QLabel('Phone Number: ', self.window)
+        self.phoneNumberLine = QLineEdit(self.window)
+        if self.window.signupLoginMenu.user is not None:
+            self.phoneNumberLine.setText(
+                self.window.signupLoginMenu.user.phoneNumber)
+        else:
+            self.phoneNumberLine.setText("")
+        self.phoneNumberLine.textChanged.connect(
+            lambda text: self.window.signupLoginMenu.user.phoneNumber if self.window.signupLoginMenu.user else "")
+
+        # variables for password
+        self.passwordLabel = QLabel('Password: ', self.window)
+        self.passwordLine = QLineEdit(self.window)
+        if self.window.signupLoginMenu.user is not None:
+            self.passwordLine.setText(
+                self.window.signupLoginMenu.user.password)
+        else:
+            self.passwordLine.setText("")
+        self.passwordLine.setEchoMode(QLineEdit.EchoMode.Password)
+        self.passwordLine.textChanged.connect(
+            lambda text: self.window.signupLoginMenu.user.password if self.window.signupLoginMenu.user else "")
+
+        # variables for city
+        self.cityLabel = QLabel('City: ', self.window)
+        self.cityCombobox = QComboBox(self.window)
+        self.cities = ['Karaj',
+                       'Ardabil',
+                       'Bushehr',
+                       'Shahrekord',
+                       'Tabriz',
+                       'Shiraz',
+                       'Rasht',
+                       'Gorgan',
+                       'Hamadan',
+                       'Bandar Abas',
+                       'Ilam',
+                       'Isfahan',
+                       'Kerman',
+                       'Kermanshah',
+                       'Ahwaz',
+                       'Yasuj',
+                       'Sanandaj',
+                       'Khoramabad',
+                       'Arak',
+                       'Sari',
+                       'Bojnurd',
+                       'Qazvin',
+                       'Qom',
+                       'Mashhad',
+                       'Semnan',
+                       'Zahedan',
+                       'Birjand',
+                       'Tehran',
+                       'Urmia',
+                       'Yazd',
+                       'Zanjan']
+        self.cityCombobox.addItems(self.cities)
+        if self.window.signupLoginMenu.user is not None:
+            self.cityCombobox.setCurrentText(
+                self.window.signupLoginMenu.user.city)
+        else:
+            self.cityCombobox.setCurrentText("")
+        self.cityCombobox.currentTextChanged.connect(
+            lambda text: self.window.signupLoginMenu.user.city if self.window.signupLoginMenu.user else "")
+
+        # variables for email
+        self.emailLabel = QLabel('Email: ', self.window)
+        self.emailLine = QLineEdit(self.window)
+        if self.window.signupLoginMenu.user is not None:
+            self.emailLine.setText(self.window.signupLoginMenu.user.email)
+        else:
+            self.emailLine.setText("")
+        self.emailLine.textChanged.connect(
+            lambda text: self.window.signupLoginMenu.user.email if self.window.signupLoginMenu.user else "")
+
+        # variables for birth date
+        self.dateLabel = QLabel('Birth Date: ', self.window)
+        self.dateLine = QLineEdit(self.window)
+        if self.window.signupLoginMenu.user is not None:
+            self.dateLine.setText(self.window.signupLoginMenu.user.birthDate)
+        else:
+            self.dateLine.setText("")
+        self.dateLine.textChanged.connect(
+            lambda text: self.window.signupLoginMenu.user.birthDate if self.window.signupLoginMenu.user else "")
+
+        # submit button
+        self.submit = QPushButton('Submit', self.window)
+        self.submit.clicked.connect(self.submit_button)
+
+        # back button
+        self.back = QPushButton('Back', self.window)
+        self.back.clicked.connect(self.back_button)
+
+        # layout
+        self.layout.addWidget(self.firstNameLabel, 0, 0)
+        self.layout.addWidget(self.firstNameLine, 0, 1)
+        self.layout.addWidget(self.lastNameLabel, 1, 0)
+        self.layout.addWidget(self.lastNameLine, 1, 1)
+        self.layout.addWidget(self.phoneNumberLabel, 2, 0)
+        self.layout.addWidget(self.phoneNumberLine, 2, 1)
+        self.layout.addWidget(self.passwordLabel, 3, 0)
+        self.layout.addWidget(self.passwordLine, 3, 1)
+        self.layout.addWidget(self.cityLabel, 4, 0)
+        self.layout.addWidget(self.cityCombobox, 4, 1)
+        self.layout.addWidget(self.emailLabel, 5, 0)
+        self.layout.addWidget(self.emailLine, 5, 1)
+        self.layout.addWidget(self.dateLabel, 6, 0)
+        self.layout.addWidget(self.dateLine, 6, 1)
+        self.layout.addWidget(self.submit, 7, 0, 1, 2)
+        self.layout.addWidget(self.back, 8, 0, 1, 2)
+
+    def submit_button(self):
+        # implement your logic here to update the user profile
+        pass
+    
+    def back_button(self):
+        # implement your logic here to go back to the previous menu
+        pass
+        def __init__(self, window: MyWindow):
+            self.window=window
+            self.change_profile_menu()
+    
+    def change_profile_menu(self):
+        central_widget=QWidget(self.window)
+        self.window.setCentralWidget(central_widget)
+        self.layout=QGridLayout(central_widget)
+        # variables for first name
+        self.firstNameLabel=QLabel('First Name: ', self.window)
+        self.firstNameLine=QLineEdit(self.window)
+        if self.window.signupLoginMenu.user is not None:
+            self.firstNameLine.setText(
+                self.window.signupLoginMenu.user.firstName)
+        else:
+            self.firstNameLine.setText("")
+        self.firstNameLine.textChanged.connect(
+            lambda text: self.window.signupLoginMenu.user.firstName if self.window.signupLoginMenu.user else "")
+
+# variables for last name
+        self.lastNameLabel=QLabel('Last Name: ', self.window)
+        self.lastNameLine=QLineEdit(self.window)
+        if self.window.signupLoginMenu.user is not None:
+            self.lastNameLine.setText(
+                self.window.signupLoginMenu.user.lastName)
+        else:
+            self.lastNameLine.setText("")
+        self.lastNameLine.textChanged.connect(
+            lambda text: self.window.signupLoginMenu.user.lastName if self.window.signupLoginMenu.user else "")
+
+# variables for phone number
+        self.phoneNumberLabel=QLabel('Phone Number: ', self.window)
+        self.phoneNumberLine=QLineEdit(self.window)
+        if self.window.signupLoginMenu.user is not None:
+            self.phoneNumberLine.setText(
+                self.window.signupLoginMenu.user.phoneNumber)
+        else:
+            self.phoneNumberLine.setText("")
+        self.phoneNumberLine.textChanged.connect(
+            lambda text: self.window.signupLoginMenu.user.phoneNumber if self.window.signupLoginMenu.user else "")
+
+# variables for password
+        self.passwordLabel=QLabel('Password: ', self.window)
+        self.passwordLine=QLineEdit(self.window)
+        if self.window.signupLoginMenu.user is not None:
+            self.passwordLine.setText(
+                self.window.signupLoginMenu.user.password)
+        else:
+            self.passwordLine.setText("")
+        self.passwordLine.setEchoMode(QLineEdit.EchoMode.Password)
+        self.passwordLine.textChanged.connect(
+            lambda text: self.window.signupLoginMenu.user.password if self.window.signupLoginMenu.user else "")
+
+        # variables for city
+        self.cityLabel=QLabel('City: ', self.window)
+        self.cityCombobox=QComboBox(self.window)
+        self.cities=['Karaj',
+                       'Ardabil',
+                       'Bushehr',
+                       'Shahrekord',
+                       'Tabriz',
+                       'Shiraz',
+                       'Rasht',
+                       'Gorgan',
+                       'Hamadan',
+                       'Bandar Abas',
+                       'Ilam',
+                       'Isfahan',
+                       'Kerman',
+                       'Kermanshah',
+                       'Ahwaz',
+                       'Yasuj',
+                       'Sanandaj',
+                       'Khoramabad',
+                       'Arak',
+                       'Sari',
+                       'Bojnurd',
+                       'Qazvin',
+                       'Qom',
+                       'Mashhad',
+                       'Semnan',
+                       'Zahedan',
+                       'Birjand',
+                       'Tehran',
+                       'Urmia',
+                       'Yazd',
+                       'Zanjan']
+        self.cityCombobox.addItems(self.cities)
+        if self.window.signupLoginMenu.user is not None:
+            self.cityCombobox.setCurrentText(
+                self.window.signupLoginMenu.user.city)
+        else:
+            self.cityCombobox.setCurrentText("")
+        self.cityCombobox.currentTextChanged.connect(
+            lambda text: self.window.signupLoginMenu.user.city if self.window.signupLoginMenu.user else "")
+
+        # variables for email
+        self.emailLabel=QLabel('Email: ', self.window)
+        self.emailLine=QLineEdit(self.window)
+        if self.window.signupLoginMenu.user is not None:
+            self.emailLine.setText(self.window.signupLoginMenu.user.email)
+        else:
+            self.emailLine.setText("")
+        self.emailLine.textChanged.connect(
+            lambda text: self.window.signupLoginMenu.user.email if self.window.signupLoginMenu.user else "")
+
+        # variables for birth date
+        self.dateLabel=QLabel('Birth Date: ', self.window)
+        self.dateLine=QLineEdit(self.window)
+        if self.window.signupLoginMenu.user is not None:
+            self.dateLine.setText(self.window.signupLoginMenu.user.birthDate)
+        else:
+            self.dateLine.setText("")
+        self.dateLine.textChanged.connect(
+            lambda text: self.window.signupLoginMenu.user.birthDate if self.window.signupLoginMenu.user else "")
+        # submit button
+        self.submit=QPushButton('Submit', self.window)
+        self.submit.clicked.connect(self.submit_button)
+        # back button
+        self.back=QPushButton('Back', self.window)
+        self.back.clicked.connect(self.back_button)
+        # layout
+        self.layout.addWidget(self.firstNameLabel, 0, 0)
+        self.layout.addWidget(self.firstNameLine, 0, 1)
+        self.layout.addWidget(self.lastNameLabel, 1, 0)
+        self.layout.addWidget(self.lastNameLine, 1, 1)
+        self.layout.addWidget(self.phoneNumberLabel, 2, 0)
+        self.layout.addWidget(self.phoneNumberLine, 2, 1)
+        self.layout.addWidget(self.passwordLabel, 3, 0)
+        self.layout.addWidget(self.passwordLine, 3, 1)
+        self.layout.addWidget(self.cityLabel, 4, 0)
+        self.layout.addWidget(self.cityCombobox, 4, 1)
+        self.layout.addWidget(self.emailLabel, 5, 0)
+        self.layout.addWidget(self.emailLine, 5, 1)
+        self.layout.addWidget(self.dateLabel, 6, 0)
+        self.layout.addWidget(self.dateLine, 6, 1)
+        self.layout.addWidget(self.submit, 7, 0, 1, 2)
+        self.layout.addWidget(self.back, 8, 0, 1, 2)
+
+    def submit_button(self):
+        # implement your logic here to update the user profile
+        pass
+
+    def back_button(self):
+        self.firstNameLabel.setVisible(False)
+        self.firstNameLine.setVisible(False)
+        self.lastNameLabel.setVisible(False)
+        self.lastNameLine.setVisible(False)
+        self.phoneNumberLabel.setVisible(False)
+        self.phoneNumberLine.setVisible(False)
+        self.passwordLabel.setVisible(False)
+        self.passwordLine.setVisible(False)
+        self.cityLabel.setVisible(False)
+        self.cityCombobox.setVisible(False)
+        self.emailLabel.setVisible(False)
+        self.emailLine.setVisible(False)
+        self.dateLabel.setVisible(False)
+        self.dateLine.setVisible(False)
+        self.submit.setVisible(False)
+        self.back.setVisible(False)
+        self.settingMenu=SettingMenu(self.window)
+
+class CategoryMenu:
+    def __init__(self, window: MyWindow):
+        self.window=window
+        self.init_ui()
+
+    def init_ui(self):
+        self.window.signupLoginMenu.mainMenu.hide_menu()
+        central_widget=QWidget(self.window)
+        self.window.setCentralWidget(central_widget)
+        self.layout=QGridLayout(central_widget)
+
+        self.categoryTypeLabel=QLabel('Select category type: ', self.window)
+        self.categoryTypeComboBox=QComboBox(self.window)
         self.categoryTypeComboBox.addItems(['Income', 'Expense'])
 
-        self.categoryNameLabel = QLabel('Enter category name: ', self.window)
-        self.categoryNameLineEdit = QLineEdit(self.window)
-        self.categoryNameWarning = QLabel(' ', self.window)
+        self.categoryNameLabel=QLabel('Enter category name: ', self.window)
+        self.categoryNameLineEdit=QLineEdit(self.window)
+        self.categoryNameWarning=QLabel(' ', self.window)
 
-        self.submitButton = QPushButton('Submit', self.window)
+        self.submitButton=QPushButton('Submit', self.window)
         self.submitButton.clicked.connect(self.submit_category)
-        self.backButton = QPushButton('Back', self.window)
+        self.backButton=QPushButton('Back', self.window)
         self.backButton.clicked.connect(self.back)
 
         self.layout.addWidget(self.categoryTypeLabel, 0, 0)
@@ -846,9 +1250,9 @@ class CategoryMenu:
         self.layout.addWidget(self.backButton, 3, 0, 1, 3)
 
     def submit_category(self):
-        category_type = self.categoryTypeComboBox.currentText().lower() + '_categories'
-        category_name = self.categoryNameLineEdit.text()
-        category = Category(category_name)
+        category_type=self.categoryTypeComboBox.currentText().lower() + '_categories'
+        category_name=self.categoryNameLineEdit.text()
+        category=Category(category_name)
 
         try:
             category.validate_name()
@@ -865,46 +1269,50 @@ class CategoryMenu:
         self.categoryTypeLabel.setVisible(False)
         self.submitButton.setVisible(False)
         self.backButton.setVisible(False)
-        self.mainMenu = MainMenu(self.window)
+        self.mainMenu=MainMenu(self.window)
+
 
 class SearchMenu:
     def __init__(self, window: MyWindow):
-        self.window = window
+        self.window=window
         self.init_ui()
 
     def init_ui(self):
         self.window.signupLoginMenu.mainMenu.hide_menu()
-        central_widget = QWidget(self.window)
+        central_widget=QWidget(self.window)
         self.window.setCentralWidget(central_widget)
-        self.layout = QGridLayout(central_widget)
+        self.layout=QGridLayout(central_widget)
 
-        button_group = QButtonGroup()
-        self.searchLabel=QLabel('Type for search: ',self.window)
+        button_group=QButtonGroup()
+        self.searchLabel=QLabel('Type for search: ', self.window)
         self.searchLine=QLineEdit(self.window)
-        self.filterLabel=QLabel('filters: ',self.window)
+        self.filterLabel=QLabel('filters: ', self.window)
 
-        self.dayfilter=QRadioButton('day:',self.window)
+        self.dayfilter=QRadioButton('day:', self.window)
         self.dayLine=QLineEdit(self.window)
         self.dayLine.setVisible(False)
         self.dayfilter.setAutoExclusive(False)
         button_group.addButton(self.dayfilter)
-        self.dayfilter.toggled.connect(lambda checked: self.dayLine.setVisible(checked))
+        self.dayfilter.toggled.connect(
+            lambda checked: self.dayLine.setVisible(checked))
 
-        self.monthfilter=QRadioButton('month:',self.window)
+        self.monthfilter=QRadioButton('month:', self.window)
         self.monthLine=QLineEdit(self.window)
         self.monthLine.setVisible(False)
         self.monthfilter.setAutoExclusive(False)
         button_group.addButton(self.monthfilter)
-        self.monthfilter.toggled.connect(lambda checked: self.monthLine.setVisible(checked))
+        self.monthfilter.toggled.connect(
+            lambda checked: self.monthLine.setVisible(checked))
 
-        self.yearfilter=QRadioButton('year:',self.window)
+        self.yearfilter=QRadioButton('year:', self.window)
         self.yearLine=QLineEdit(self.window)
         self.yearLine.setVisible(False)
         self.yearfilter.setAutoExclusive(False)
         button_group.addButton(self.yearfilter)
-        self.yearfilter.toggled.connect(lambda checked: self.yearLine.setVisible(checked))
+        self.yearfilter.toggled.connect(
+            lambda checked: self.yearLine.setVisible(checked))
 
-        self.incomeExpensefilter=QRadioButton('type: ',self.window)
+        self.incomeExpensefilter=QRadioButton('type: ', self.window)
         self.incomeExpenseCombo=QComboBox(self.window)
         self.incomeExpenseCombo.setVisible(False)
         self.incomeExpenseCombo.addItem('income')
@@ -912,16 +1320,20 @@ class SearchMenu:
         self.incomeExpenseCombo.addItem('both')
         self.incomeExpensefilter.setAutoExclusive(False)
         button_group.addButton(self.incomeExpensefilter)
-        self.incomeExpensefilter.toggled.connect(lambda checked: self.incomeExpenseCombo.setVisible(checked))
+        self.incomeExpensefilter.toggled.connect(
+            lambda checked: self.incomeExpenseCombo.setVisible(checked))
 
-        self.moneyrangefilter=QRadioButton('value range(type two number seperated by space: )',self.window)
+        self.moneyrangefilter=QRadioButton(
+            'value range(type two number seperated by space: )', self.window)
         self.moneyrangeline=QLineEdit(self.window)
         self.moneyrangeline.setVisible(False)
         self.moneyrangefilter.setAutoExclusive(False)
         button_group.addButton(self.moneyrangefilter)
-        self.moneyrangefilter.toggled.connect(lambda checked: self.moneyrangeline.setVisible(checked))
+        self.moneyrangefilter.toggled.connect(
+            lambda checked: self.moneyrangeline.setVisible(checked))
 
-        self.searchinfilter=QRadioButton('choose the one you want to search in: ',self.window)
+        self.searchinfilter=QRadioButton(
+            'choose the one you want to search in: ', self.window)
         self.searchinCombo=QComboBox(self.window)
         self.searchinCombo.addItem('descriptions')
         self.searchinCombo.addItem('categories')
@@ -931,12 +1343,13 @@ class SearchMenu:
         self.searchinLine.setVisible(False)
         self.searchinfilter.setAutoExclusive(False)
         button_group.addButton(self.searchinfilter)
-        self.searchinfilter.toggled.connect(lambda checked: self.searchinCombo.setVisible(checked))
+        self.searchinfilter.toggled.connect(
+            lambda checked: self.searchinCombo.setVisible(checked))
         self.searchinCombo.currentTextChanged.connect(self.searchin_func)
 
-        self.submitButton = QPushButton('Submit', self.window)
+        self.submitButton=QPushButton('Submit', self.window)
         self.submitButton.clicked.connect(self.show_search_results)
-        self.backButton = QPushButton('Back', self.window)
+        self.backButton=QPushButton('Back', self.window)
         self.backButton.clicked.connect(self.back)
 
         self.layout.addWidget(self.searchLabel,0,0)
@@ -964,10 +1377,11 @@ class SearchMenu:
         self.layout.addWidget(self.table, 9, 0, 1, 2)
         self.table.hide()
     def searchin_func(self):
-        if self.searchinCombo.isVisible() :
-            self.searchinLine.setVisible(True) 
+        if self.searchinCombo.isVisible():
+            self.searchinLine.setVisible(True)
         else:
             self.searchinLine.setVisible(False)
+
     def show_search_results(self):
         self.searchengine=Search(self)
         self.searchengine.search(self.window.db)
@@ -1085,39 +1499,43 @@ class Search:
 
 class ReportMenu:
     def __init__(self, window: MyWindow):
-        self.window = window
+        self.window=window
         self.init_ui()
 
     def init_ui(self):
         self.window.signupLoginMenu.mainMenu.hide_menu()
-        central_widget = QWidget(self.window)
+        central_widget=QWidget(self.window)
         self.window.setCentralWidget(central_widget)
-        self.layout = QGridLayout(central_widget)
-        button_group = QButtonGroup()
+        self.layout=QGridLayout(central_widget)
+        button_group=QButtonGroup()
 
-        self.reportLabel=QLabel('choose the items below to specify your report.',self.window)
-        self.dayfilter=QRadioButton('day:',self.window)
+        self.reportLabel=QLabel(
+            'choose the items below to specify your report.', self.window)
+        self.dayfilter=QRadioButton('day:', self.window)
         self.dayLine=QLineEdit(self.window)
         self.dayLine.setVisible(False)
         self.dayfilter.setAutoExclusive(False)
         button_group.addButton(self.dayfilter)
-        self.dayfilter.toggled.connect(lambda checked: self.dayLine.setVisible(checked))
+        self.dayfilter.toggled.connect(
+            lambda checked: self.dayLine.setVisible(checked))
 
-        self.monthfilter=QRadioButton('month:',self.window)
+        self.monthfilter=QRadioButton('month:', self.window)
         self.monthLine=QLineEdit(self.window)
         self.monthLine.setVisible(False)
         self.monthfilter.setAutoExclusive(False)
         button_group.addButton(self.monthfilter)
-        self.monthfilter.toggled.connect(lambda checked: self.monthLine.setVisible(checked))
+        self.monthfilter.toggled.connect(
+            lambda checked: self.monthLine.setVisible(checked))
 
-        self.yearfilter=QRadioButton('year:',self.window)
+        self.yearfilter=QRadioButton('year:', self.window)
         self.yearLine=QLineEdit(self.window)
         self.yearLine.setVisible(False)
         self.yearfilter.setAutoExclusive(False)
         button_group.addButton(self.yearfilter)
-        self.yearfilter.toggled.connect(lambda checked: self.yearLine.setVisible(checked))
+        self.yearfilter.toggled.connect(
+            lambda checked: self.yearLine.setVisible(checked))
 
-        self.incomeExpensefilter=QRadioButton('type: ',self.window)
+        self.incomeExpensefilter=QRadioButton('type: ', self.window)
         self.incomeExpenseCombo=QComboBox(self.window)
         self.incomeExpenseCombo.setVisible(False)
         self.incomeExpenseCombo.addItem('income')
@@ -1277,7 +1695,7 @@ class Report:
 
 class MainMenu():
     def __init__(self, window: MyWindow):
-        self.window = window
+        self.window=window
         self.show_main_menu()
 
     def register_income(self):
@@ -1290,64 +1708,65 @@ class MainMenu():
 
     def show_categories(self):
         self.hide_menu()
-        self.categoryMenu = CategoryMenu(self.window)
+        self.categoryMenu=CategoryMenu(self.window)
 
     def show_search(self):
         self.hide_menu()
-        self.searchMenu = SearchMenu(self.window)
+        self.searchMenu=SearchMenu(self.window)
 
     def show_reporting(self):
         self.hide_menu()
-        self.reportMenu = ReportMenu(self.window)
+        self.reportMenu=ReportMenu(self.window)
 
     def show_settings(self):
         self.hide_menu()
+        self.settingMenu=SettingMenu(self.window)
 
     def show_main_menu(self):
         # Welcome label
-        self.welcominglabel = QLabel('Welcome to elmos balance.', self.window)
+        self.welcominglabel=QLabel('Welcome to elmos balance.', self.window)
         self.welcominglabel.setGeometry(150, 100, 400, 200)
         self.welcominglabel.show()
 
         # Register Income button
-        self.registerIncomeButton = QPushButton('Register Income', self.window)
+        self.registerIncomeButton=QPushButton('Register Income', self.window)
         self.registerIncomeButton.setGeometry(100, 250, 200, 50)
         self.registerIncomeButton.clicked.connect(self.register_income)
         self.registerIncomeButton.show()
 
         # Register Expense button
-        self.registerExpenseButton = QPushButton(
+        self.registerExpenseButton=QPushButton(
             'Register Expense', self.window)
         self.registerExpenseButton.setGeometry(350, 250, 200, 50)
         self.registerExpenseButton.clicked.connect(self.register_expense)
         self.registerExpenseButton.show()
 
         # Categories button
-        self.categoriesButton = QPushButton('Categories', self.window)
+        self.categoriesButton=QPushButton('Categories', self.window)
         self.categoriesButton.setGeometry(100, 350, 200, 50)
         self.categoriesButton.clicked.connect(self.show_categories)
         self.categoriesButton.show()
 
         # Search button
-        self.searchButton = QPushButton('Search', self.window)
+        self.searchButton=QPushButton('Search', self.window)
         self.searchButton.setGeometry(350, 350, 200, 50)
         self.searchButton.clicked.connect(self.show_search)
         self.searchButton.show()
 
         # Reporting button
-        self.reportingButton = QPushButton('Reporting', self.window)
+        self.reportingButton=QPushButton('Reporting', self.window)
         self.reportingButton.setGeometry(100, 450, 200, 50)
         self.reportingButton.clicked.connect(self.show_reporting)
         self.reportingButton.show()
 
         # Settings button
-        self.settingsButton = QPushButton('Settings', self.window)
+        self.settingsButton=QPushButton('Settings', self.window)
         self.settingsButton.setGeometry(350, 450, 200, 50)
         self.settingsButton.clicked.connect(self.show_settings)
         self.settingsButton.show()
 
         # Exit button
-        self.exitButton = QPushButton('Exit', self.window)
+        self.exitButton=QPushButton('Exit', self.window)
         self.exitButton.setGeometry(250, 550, 200, 50)
         self.exitButton.clicked.connect(self.exit_app)
         self.exitButton.show()
@@ -1368,6 +1787,6 @@ class MainMenu():
 
 
 if __name__ == '__main__':
-    window = MyWindow()
+    window=MyWindow()
     window.show()
     sys.exit(app.exec())
