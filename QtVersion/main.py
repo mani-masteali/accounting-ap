@@ -1,5 +1,6 @@
-from PyQt6.QtWidgets import QApplication, QMainWindow, QPushButton, QLabel, QLineEdit, QGridLayout, QWidget, QComboBox,QRadioButton,QButtonGroup
-from PyQt6.QtCore import Qt
+from PyQt6.QtWidgets import QApplication, QMainWindow, QPushButton, QLabel, QLineEdit, QGridLayout, QWidget, QComboBox,QRadioButton,QButtonGroup,QTableView
+from PyQt6.QtCore import Qt, QAbstractTableModel,QVariant
+from PyQt6.QtGui import QStandardItemModel,QStandardItem
 from datetime import datetime
 import sqlite3
 import sys
@@ -864,8 +865,6 @@ class CategoryMenu:
         self.backButton.setVisible(False)
         self.mainMenu = MainMenu(self.window)
 
-class Search:
-    pass
 class SearchMenu:
     def __init__(self, window: MyWindow):
         self.window = window
@@ -956,13 +955,20 @@ class SearchMenu:
         self.layout.addWidget(self.searchinLine,7,2)
         self.layout.addWidget(self.submitButton,8,0)
         self.layout.addWidget(self.backButton,8,1)
+        self.model = QStandardItemModel(self.window)
+        self.table = QTableView(self.window)
+        self.table.setModel(self.model)
+
+        self.layout.addWidget(self.table, 9, 0, 1, 2)
+        self.table.hide()
     def searchin_func(self):
         if self.searchinCombo.isVisible() :
             self.searchinLine.setVisible(True) 
         else:
             self.searchinLine.setVisible(False)
     def show_search_results(self):
-        pass
+        self.searchengine=Search(self)
+        self.searchengine.search(self.window.db)
     def back(self):
         self.searchLabel.setVisible(False)
         self.searchLine.setVisible(False)
@@ -982,7 +988,100 @@ class SearchMenu:
         self.searchinLine.setVisible(False)
         self.submitButton.setVisible(False)
         self.backButton.setVisible(False)
+        self.table.setVisible(False)
         self.mainMenu = MainMenu(self.window)
+    def get_filters(self):
+        self.day = self.dayLine.text()
+        self.month = self.monthLine.text()
+        self.year = self.yearLine.text()
+        self.incomeExpense = self.incomeExpenseCombo.currentText()
+        self.moneyrange = self.moneyrangeline.text()
+        self.searchin= self.searchinLine.text()
+        return [self.day,self.month,self.year,self.incomeExpense,self.moneyrange,self.searchin]
+class Search:
+    def __init__(self, menu: SearchMenu):
+        self.menu = menu
+        self.model=self.menu.model
+        self.table=self.menu.table
+    def search(self, db: DataBase):
+        self.searchText = self.menu.searchLine.text()
+        self.searchfilters = {
+            'day': self.menu.get_filters()[0] if self.menu.get_filters()[0].strip() else None,
+            'month': self.menu.get_filters()[1] if self.menu.get_filters()[1].strip() else None,
+            'year': self.menu.get_filters()[2] if self.menu.get_filters()[2].strip() else None,
+            'income_expense': self.menu.get_filters()[3] if self.menu.get_filters()[3].strip() else None,
+            'money_range': self.menu.get_filters()[4] if self.menu.get_filters()[4].strip() else None,
+            'search_in': self.menu.get_filters()[5] if self.menu.get_filters()[5].strip() else None
+        }
+        if self.searchfilters['income_expense'] == 'income':
+            base_query = f"SELECT * FROM income_fine WHERE username='{self.menu.window.signupLoginMenu.usernamelogin if self.menu.window.signupLoginMenu.logining else self.menu.window.signupLoginMenu.user.userName}' and date LIKE '%{self.searchText}%' OR category LIKE '%{self.searchText}%' OR description LIKE '%{self.searchText}%' or amount LIKE '%{self.searchText}%'"
+            self.filtering(base_query)
+            db.cursor.execute(base_query)
+            rows = db.cursor.fetchall()
+            self.model.clear()
+            self.model.setHorizontalHeaderLabels(["Amount", "Date", "Category", "Description"])
+            for row in rows:
+                date = QStandardItem(str(row[1]))
+                category = QStandardItem(str(row[2]))
+                description = QStandardItem(str(row[3]))
+                amount = QStandardItem(str(row[4]))
+                self.model.appendRow([date, category, description, amount])
+            self.table.show()
+        elif self.searchfilters['income_expense'] == 'expense':
+            base_query = f"SELECT * FROM expense_fine WHERE username='{self.menu.window.signupLoginMenu.usernamelogin if self.menu.window.signupLoginMenu.logining else self.menu.window.signupLoginMenu.user.userName}' and date LIKE '%{self.searchText}%' OR category LIKE '%{self.searchText}%' OR description LIKE '%{self.searchText}%' or amount LIKE '%{self.searchText}%'"
+            self.filtering(base_query)
+            db.cursor.execute(base_query)
+            rows = db.cursor.fetchall()
+            self.model.clear()
+            self.model.setHorizontalHeaderLabels(["Amount", "Date", "Category", "Description"])
+            for row in rows:
+                date = QStandardItem(str(row[1]))
+                category = QStandardItem(str(row[2]))
+                description = QStandardItem(str(row[3]))
+                amount = QStandardItem(str(row[4]))
+                self.model.appendRow([date, category, description, amount])
+            self.table.show()
+        elif self.searchfilters['income_expense'] == 'both':
+            base_query1 = base_query = f"SELECT * FROM income_fine WHERE username='{self.menu.window.signupLoginMenu.usernamelogin if self.menu.window.signupLoginMenu.logining else self.menu.window.signupLoginMenu.user.userName}' and  date LIKE '%{self.searchText}%' OR category LIKE '%{self.searchText}%' OR description LIKE '%{self.searchText}%' or amount LIKE '%{self.searchText}%'"
+            self.filtering(base_query1)
+            db.cursor.execute(base_query1)
+            base_query2 = base_query = f"SELECT * FROM expense_fine WHERE username='{self.menu.window.signupLoginMenu.usernamelogin if self.menu.window.signupLoginMenu.logining else self.menu.window.signupLoginMenu.user.userName}' and date LIKE '%{self.searchText}%' OR category LIKE '%{self.searchText}%' OR description LIKE '%{self.searchText}%' or amount LIKE '%{self.searchText}%'"
+            self.filtering(base_query2)
+            db.cursor.execute(base_query2)
+            rows = db.cursor.fetchall()
+            self.model.clear()
+            self.model.setHorizontalHeaderLabels(["Amount", "Date", "Category", "Description"])
+            for row in rows:
+                date = QStandardItem(str(row[1]))
+                category = QStandardItem(str(row[2]))
+                description = QStandardItem(str(row[3]))
+                amount = QStandardItem(str(row[4]))
+                self.model.appendRow([date, category, description, amount])
+            self.table.show()
+
+    def filtering(self, base_query):
+        for filter, value in self.searchfilters.items():
+            if filter != 'income_expense' and value is not None:
+                if filter == 'day' and value is not None:
+                    base_query += f" AND SUBSTRING(date,9,2)='{value}'"
+                elif filter == 'month' and value is not None:
+                    base_query += f" AND SUBSTRING(date,6,2)='{value}'"
+                elif filter == 'year' and value is not None:
+                    base_query += f" AND SUBSTRING(date,1,4)='{value}'"
+                elif filter == 'money_range' and value is not None:
+                    value_range = value.split(sep=' ')
+                    base_query += f" AND amount BETWEEN {value_range[0]} AND {value_range[1]}"
+                elif filter == 'search_in' and value is not None:
+                    if value == 'categories':
+                        base_query += f" AND category='{value}'"
+                    elif value == 'description':
+                        base_query += f" AND description='{value}'"
+                    elif value == 'both':
+                        base_query += f" AND category='{value}' and description='{value}'"
+
+
+
+
 
 
 class Report:
