@@ -122,8 +122,7 @@ class User:
                 if 1 <= int(day) <= max_days[int(month)]:
                     self.birthDate = birthDate
                 else:
-                    raise ValueError(f'invalid day. this month has only {
-                                     max_days[int(month)]}')
+                    raise ValueError(f'invalid day. this month has only { max_days[int(month)]}')
             elif int(year) < 1920 or int(year) > 2005:
                 raise ValueError(f'birth year must be between 1920 and 2005')
             elif int(month) < 1 or int(month) > 12:
@@ -141,31 +140,43 @@ class User:
                                 (self.firstName, self.lastName, self.nationalId, self.phoneNumber, self.userName, self.password, self.city, self.email, self.birthDate, self.securityQAnswer))
         database.commit()
 
+class MyWindow(QMainWindow):
+    def __init__(self):
+        super().__init__()
+        self.setWindowIcon(QIcon("QtVersion/Logo.png"))
+        self.setWindowTitle("ElmosBalance")
+        self.setFixedSize(800, 600)
+        self.showMaximized()
+        self.db = DataBase()
+        central_widget = QWidget(self)
+        self.setCentralWidget(central_widget)
+        self.signupLoginMenu = SignupLoginMenu(self)
+
 
 class RegisterFine:
     def __init__(self, db):
         self.db = db
 
-    def register_income(self, amount, date, category, description):
+    def register_income(self, amount, date, category, description,user):
         self.validate_amount(amount)
         self.validate_date(date)
         self.validate_category(category)
         self.validate_description(description)
 
-        cursor = self.db.cursor()
-        cursor.execute("INSERT INTO income_fine (amount, date, category, description) VALUES (?,?,?,?)",
-                       (amount, date, category, description))
+        cursor = self.db.cursor
+        cursor.execute("INSERT INTO income_fine (username, amount, date, category, description) VALUES (?,?,?,?,?)",
+                    (user,amount, date, category, description))
         self.db.commit()
 
-    def register_expense(self, amount, date, category, description):
+    def register_expense(self, amount, date, category, description,user):
         self.validate_amount(amount)
         self.validate_date(date)
         self.validate_category(category)
         self.validate_description(description)
 
         cursor = self.db.cursor()
-        cursor.execute("INSERT INTO expense_fine (amount, date, category, description) VALUES (?,?,?,?)",
-                       (amount, date, category, description))
+        cursor.execute("INSERT INTO expense_fine (username, amount, date, category, description) VALUES (?,?,?,?,?)",
+                    (user,amount, date, category, description))
         self.db.commit()
 
     def validate_amount(self, amount):
@@ -193,19 +204,19 @@ class RegisterFine:
             raise ValueError("Description must be 100 characters or less")
 
     def create_tables(self):
-        cursor = self.db.cursor()
-        cursor.execute("""
+        cursor = self.db.cursor
+        cursor.execute(f"""
             CREATE TABLE IF NOT EXISTS income_fine (
-                id INTEGER PRIMARY KEY,
+                username TEXT PRIMARY KEY,
                 amount REAL,
                 date TEXT,
                 category TEXT,
                 description TEXT
             )
         """)
-        cursor.execute("""
+        cursor.execute(f"""
             CREATE TABLE IF NOT EXISTS expense_fine (
-                id INTEGER PRIMARY KEY,
+                username TEXT PRIMARY KEY,
                 amount REAL,
                 date TEXT,
                 category TEXT,
@@ -261,7 +272,7 @@ class RegisterIncomeMenu:
         self.layout.addWidget(self.backButton, 5, 0, 1, 3)
 
     def load_income_categories(self):
-        cursor = self.window.db.cursor()
+        cursor = self.window.db.cursor
         cursor.execute("SELECT name FROM income_categories")
         categories = [row[0] for row in cursor.fetchall()]
         self.categoryComboBox.addItems(categories)
@@ -274,7 +285,11 @@ class RegisterIncomeMenu:
 
         try:
             register_fine = RegisterFine(self.window.db)
-            register_fine.register_income(float(amount), date, category, description)
+            register_fine.create_tables()
+            if self.window.signupLoginMenu.logining:
+                register_fine.register_income(float(amount), date, category, description,self.window.signupLoginMenu.usernamelogin)
+            elif self.window.signupLoginMenu.singuping:
+                register_fine.register_income(float(amount), date, category, description,self.window.signupLoginMenu.user.userName)
             self.descriptionWarning.setText('Income registered successfully')
         except ValueError as e:
             self.descriptionWarning.setText(str(e))
@@ -343,7 +358,7 @@ class RegisterExpenseMenu:
         self.layout.addWidget(self.backButton, 5, 0, 1, 3)
 
     def load_expense_categories(self):
-        cursor = self.window.db.cursor()
+        cursor = self.window.db.cursor
         cursor.execute("SELECT name FROM expense_categories")
         categories = [row[0] for row in cursor.fetchall()]
         self.categoryComboBox.addItems(categories)
@@ -356,7 +371,11 @@ class RegisterExpenseMenu:
 
         try:
             register_fine = RegisterFine(self.window.db)
-            register_fine.register_expense(float(amount), date, category, description)
+            register_fine.create_tables()
+            if self.window.signupLoginMenu.logining:
+                register_fine.register_income(float(amount), date, category, description,self.window.signupLoginMenu.usernamelogin)
+            elif self.window.signupLoginMenu.singuping:
+                register_fine.register_income(float(amount), date, category, description,self.window.signupLoginMenu.user.userName)
             self.descriptionWarning.setText('Expense registered successfully')
         except ValueError as e:
             self.descriptionWarning.setText(str(e))
@@ -393,27 +412,12 @@ class Category:
 
     def save_to_database(self, db, category_type):
         cursor = db.cursor
-        cursor.execute(f"SELECT name FROM {
-                       category_type} WHERE name=?", (self.name,))
+        cursor.execute(f"SELECT name FROM {category_type} WHERE name=?", (self.name,))
         if cursor.fetchone():
             raise ValueError("Category name already exists")
         cursor.execute(
             f"INSERT INTO {category_type} (name) VALUES (?)", (self.name,))
         db.commit()
-
-
-class MyWindow(QMainWindow):
-    def __init__(self):
-        super().__init__()
-        self.setWindowIcon(QIcon("QtVersion/Logo.png"))
-        self.setWindowTitle("ElmosBalance")
-        self.setFixedSize(800, 600)
-        self.showMaximized()
-        self.db = DataBase()
-        central_widget = QWidget(self)
-        self.setCentralWidget(central_widget)
-        self.signupLoginMenu = SignupLoginMenu(self)
-
 
 class DataBase:
     def __init__(self):
@@ -497,36 +501,36 @@ class SignupLoginMenu():
         self.cityLabel = QLabel('choose your city: ', self.window)
         self.cityCombobox = QComboBox(self.window)
         self.cities = ['Karaj',
-                       'Ardabil',
-                       'Bushehr',
-                       'Shahrekord',
-                       'Tabriz',
-                       'Shiraz',
-                       'Rasht',
-                       'Gorgan',
-                       'Hamadan',
-                       'Bandar Abas',
-                       'Ilam',
-                       'Isfahan',
-                       'Kerman',
-                       'Kermanshah',
-                       'Ahwaz',
-                       'Yasuj',
-                       'Sanandaj',
-                       'Khoramabad',
-                       'Arak',
-                       'Sari',
-                       'Bojnurd',
-                       'Qazvin',
-                       'Qom',
-                       'Mashhad',
-                       'Semnan',
-                       'Zahedan',
-                       'Birjand',
-                       'Tehran',
-                       'Urmia',
-                       'Yazd',
-                       'Zanjan']
+                    'Ardabil',
+                    'Bushehr',
+                    'Shahrekord',
+                    'Tabriz',
+                    'Shiraz',
+                    'Rasht',
+                    'Gorgan',
+                    'Hamadan',
+                    'Bandar Abas',
+                    'Ilam',
+                    'Isfahan',
+                    'Kerman',
+                    'Kermanshah',
+                    'Ahwaz',
+                    'Yasuj',
+                    'Sanandaj',
+                    'Khoramabad',
+                    'Arak',
+                    'Sari',
+                    'Bojnurd',
+                    'Qazvin',
+                    'Qom',
+                    'Mashhad',
+                    'Semnan',
+                    'Zahedan',
+                    'Birjand',
+                    'Tehran',
+                    'Urmia',
+                    'Yazd',
+                    'Zanjan']
         self.cityCombobox.addItems(self.cities)
         # variables for email
         self.emailLabel = QLabel('enter your email: ', self.window)
@@ -750,6 +754,7 @@ class SignupLoginMenu():
         result = self.window.db.cursor.fetchone()
         if result:
             self.logining = True
+            self.usernamelogin=self.userNameLoginLine.text()
             self.clear_layout(self.loginlayout)
             self.mainMenu = MainMenu(self.window)
         else:
@@ -866,39 +871,25 @@ class MainMenu():
         self.show_main_menu()
 
     def register_income(self):
-        
-        pass
+        self.hide_menu()
+        self.registerIncomeMenu=RegisterIncomeMenu(self.window)
 
     def register_expense(self):
-        # Implement action for Register Expense button
-        pass
+        self.hide_menu()
+        self.registerIncomeMenu=RegisterExpenseMenu(self.window)
 
     def show_categories(self):
-        self.welcominglabel.setVisible(False)
-        self.registerIncomeButton.setVisible(False)
-
-        self.registerExpenseButton.setVisible(False)
-
-        self.categoriesButton.setVisible(False)
-        self.searchButton.setVisible(False)
-        self.reportingButton.setVisible(False)
-        self.settingsButton.setVisible(False)
-        self.exitButton.setVisible(False)
-
+        self.hide_menu()
         self.categoryMenu = CategoryMenu(self.window)
-        pass
 
     def show_search(self):
-        # Implement action for Search button
-        pass
+        self.hide_menu()
 
     def show_reporting(self):
-        # Implement action for Reporting button
-        pass
+        self.hide_menu()
 
     def show_settings(self):
-        # Implement action for Settings button
-        pass
+        self.hide_menu()
 
     def show_main_menu(self):
         # Welcome label
