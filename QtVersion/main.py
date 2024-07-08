@@ -1,7 +1,6 @@
 from PyQt6.QtWidgets import QApplication, QMainWindow, QPushButton, QLabel, QLineEdit, QGridLayout, QWidget, QComboBox,QRadioButton,QButtonGroup,QTableView
-from PyQt6.QtCore import Qt, QAbstractTableModel,QVariant
+from PyQt6.QtCore import Qt, QAbstractTableModel,QVariant,QTimer
 from PyQt6.QtGui import QStandardItemModel,QStandardItem
-import matplotlib.pyplot as plt
 from datetime import datetime
 import sqlite3
 import sys
@@ -443,6 +442,7 @@ class SignupLoginMenu():
         self.window = window
         self.singuping = False
         self.logining = False
+        self.wrongpass=0
         self.login_signup_menu()
 
     def login_signup_menu(self):
@@ -755,12 +755,18 @@ class SignupLoginMenu():
             self.userNameLoginLine.text(), self.passwordLoginLine.text()))
         result = self.window.db.cursor.fetchone()
         if result:
+            self.wrongpass=0
             self.logining = True
             self.usernamelogin=self.userNameLoginLine.text()
             self.clear_layout(self.loginlayout)
             self.mainMenu = MainMenu(self.window)
         else:
+            self.wrongpass+=1
             self.Loginwarning.setText('username or password is wrong')
+            if self.wrongpass%3==0:
+                self.Loginsubmit.setEnabled(False)
+                QTimer.singleShot(6000, lambda: self.Loginsubmit.setEnabled(True))
+
 
     def submit_login(self):
         self.check_user_and_pass()
